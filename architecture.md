@@ -12,7 +12,7 @@
 **Mental model**: Each flow is an async function that receives a `vivr` context object. That object gives you HTTP methods, state management, environment variables, and the ability to call other flows. Pipelines are just flows that compose other flows.
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 
 export default flow('login', async (vivr) => {
   const res = await vivr.http.post<{ token: string }>('/auth/login', {
@@ -91,7 +91,7 @@ $ vivr run login --env dev
 ```
 
 ### Why this layout
-- **`src/index.ts`** — what users import: `import { flow, defineConfig } from 'vivr'`
+- **`src/index.ts`** — what users import: `import { flow, defineConfig } from '@papidb/vivr'`
 - **`src/cli/`** — CLI-only code, not imported by flow authors
 - **`src/core/`** — runtime engine, used by both CLI and SDK
 - **`src/http/`** — isolated HTTP layer, testable independently
@@ -124,7 +124,7 @@ my-api-project/
 ### Generated vivr.config.ts
 
 ```typescript
-import { defineConfig } from 'vivr'
+import { defineConfig } from '@papidb/vivr'
 
 export default defineConfig({
   name: 'my-api-project',
@@ -155,7 +155,7 @@ export default defineConfig({
 ### Generated flows/health-check.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 
 export default flow('health-check', async (vivr) => {
   const res = await vivr.get('/health')
@@ -593,7 +593,7 @@ Discovery: globs `flowsDir/**/*.ts`, imports each, reads `name` and `description
 ### vivr.config.ts
 
 ```typescript
-import { defineConfig } from 'vivr'
+import { defineConfig } from '@papidb/vivr'
 
 export default defineConfig({
   name: 'yohanna-search',
@@ -627,7 +627,7 @@ export default defineConfig({
 ### flows/health-check.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 
 export default flow('health-check', async (vivr) => {
   const res = await vivr.get('/health')
@@ -638,7 +638,7 @@ export default flow('health-check', async (vivr) => {
 ### flows/login.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 
 export default flow({ name: 'login', description: 'Authenticate and set bearer token', cache: true }, async (vivr) => {
   const res = await vivr.post<{ token: string }>('/auth/login', {
@@ -655,7 +655,7 @@ export default flow({ name: 'login', description: 'Authenticate and set bearer t
 ### flows/search-stories.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 import login from './login'
 
 export default flow('search-stories', async (vivr) => {
@@ -682,7 +682,7 @@ export default flow('search-stories', async (vivr) => {
 ### flows/get-story.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 import searchStories from './search-stories'
 
 export default flow('get-story', async (vivr) => {
@@ -706,7 +706,7 @@ export default flow('get-story', async (vivr) => {
 ### flows/setup-dev.ts (pipeline)
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from '@papidb/vivr'
 import login from './login'
 import searchStories from './search-stories'
 import getStory from './get-story'
@@ -773,7 +773,7 @@ $ vivr run setup-dev --env dev
 
 ```jsonc
 {
-  "name": "vivr",
+  "name": "@papidb/vivr",
   "version": "0.1.0",
   "description": "API workflow orchestration CLI for developers",
   "type": "module",
@@ -798,8 +798,8 @@ $ vivr run setup-dev --env dev
 
 ### Dual exports
 
-- **SDK** (`import { flow, defineConfig } from 'vivr'`): used in user's flow files and config
-- **CLI** (`npx vivr run ...`): the `bin` entry
+- **SDK** (`import { flow, defineConfig } from '@papidb/vivr'`): used in user's flow files and config
+- **CLI** (`npx @papidb/vivr run ...` or installed `vivr`): the `bin` entry
 
 ### Build command
 
@@ -882,7 +882,7 @@ tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
 | 4 | Public example flows | `ls examples/jsonplaceholder/flows/` | Contains: `health-check.ts`, `get-users.ts`, `get-user-posts.ts`, `create-post.ts`, `full-chain.ts` |
 | 5 | CI (GitHub Actions) | Push to repo, check Actions tab | Runs: `tsc --noEmit`, `vitest run`, `tsup`. All green. |
 
-**Phase 4 gate**: `npm pack`, install from tarball in a fresh directory, `npx vivr init test && cd test && npm install && npx vivr run health-check` works end-to-end.
+**Phase 4 gate**: `npm pack`, install from tarball in a fresh directory, `npx @papidb/vivr init test && cd test && npm install && npx vivr run health-check` works end-to-end.
 
 ---
 

@@ -1,14 +1,14 @@
-# Task Plan: Build viv — API Workflow Orchestration CLI
+# Task Plan: Build rivr — API Workflow Orchestration CLI
 
 ## Goal
-Design and build "vivr", a TypeScript CLI tool that lets developers define, compose, and run API workflow flows against any API. Ship an MVP with public example flows that anyone can run as proof of concept.
+Design and build "rivr", a TypeScript CLI tool that lets developers define, compose, and run API workflow flows against any API. Ship an MVP with public example flows that anyone can run as proof of concept.
 
 ## Phases
 - [x] Phase 1: Requirements gathering — clarify concept with user
 - [x] Phase 2: Research — explore existing tools, patterns, and the target API
 - [x] Phase 3: Architecture design — types, modules, execution model, folder structure  ✅ Momus approved
 - [x] Phase 4: Core implementation — flow(), VivContext, FlowRunner, HTTP client  ✅ Gate passed
-- [x] Phase 5: CLI implementation — vivr run command  ✅ (init/list/state in Phase 2 of arch)
+- [x] Phase 5: CLI implementation — rivr run command  ✅ (init/list/state in Phase 2 of arch)
 - [x] Phase 6: Init scaffolding — templates, project generation  ✅ Verified end-to-end
 - [x] Phase 7: Example flows — public JSONPlaceholder examples  ✅ Verified end-to-end
 - [x] Phase 8: Polish — error handling, output formatting, docs  ✅ Verified
@@ -17,10 +17,10 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 ## Key Decisions (Locked)
 
 ### Identity
-- **Name**: vivr (npm: `vivr`, CLI command: `vivr`)
+- **Name**: rivr (npm: `rivr`, CLI command: `rivr`)
 - **Audience**: Developers / tech people
 - **Runtime**: Bun + Node.js (both from start)
-- **Distribution**: npm (`npx vivr init`)
+- **Distribution**: npm (`npx rivr init`)
 - **Package arch**: Single package (split later)
 - **Location**: ~/batcave/viv
 
@@ -54,12 +54,12 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 2. ~~TS runtime execution~~ → **jiti** (by unjs) on Node, native `import()` on Bun
 3. ~~Async config~~ → **No** for v1. `defineConfig` returns plain object.
 4. ~~Flow discovery~~ → Glob `*.ts` in `flowsDir` (default: `./flows`). Name = filename.
-5. ~~MVP commands~~ → `vivr run`, `vivr init`, `vivr list`. State commands in Phase 2.
-6. ~~npm name~~ → `vivr` (available). CLI command: `vivr`.
+5. ~~MVP commands~~ → `rivr run`, `rivr init`, `rivr list`. State commands in Phase 2.
+6. ~~npm name~~ → `rivr` (unscoped public package). CLI command: `rivr`.
 
 ## Errors Encountered
 - `tsup` DTS build tripped over a TypeScript 6 deprecation (`baseUrl`) despite `tsc --noEmit` being clean. Resolved by splitting JS bundling (`tsup`) from declaration generation (`tsc -p tsconfig.build.json`).
-- Local scaffold verification initially failed because the generated project depended on a local `file:` package before `dist/` existed. Resolved by making `vivr init --local` build the current package first.
+- Local scaffold verification initially failed because the generated project depended on a local `file:` package before `dist/` existed. Resolved by making `rivr init --local` build the current package first.
 
 ## Status
-**Phases 6, 8, and 9 complete** — `vivr` now builds, packs, installs, scaffolds, and runs successfully from a real tarball. Verification passed across `pnpm build`, `npm pack --dry-run`, fresh consumer install, packaged CLI execution, scaffolded-project run, `tsc --noEmit`, LSP diagnostics, success examples, and failure examples. One non-blocking caution from final review: `prepack` currently depends on `pnpm` being available in the publish environment. Next sensible step is `vivr list`, persistent store, or verbose/JSON output.
+**Phases 6, 8, and 9 complete** — `rivr` now builds, packs, installs, scaffolds, and runs successfully from a real tarball. Verification passed across `pnpm build`, `npm pack --dry-run`, fresh consumer install, packaged CLI execution, scaffolded-project run, `tsc --noEmit`, LSP diagnostics, success examples, and failure examples. Next sensible step is `rivr list`, persistent store, or verbose/JSON output.

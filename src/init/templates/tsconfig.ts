@@ -9,7 +9,7 @@ export function projectTsconfigTemplate(): string {
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["flows/**/*.ts", "vivr.config.ts"]
+  "include": ["flows/**/*.ts", "rivr.config.ts"]
 }
 `
 }

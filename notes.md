@@ -145,10 +145,10 @@ No naming conflicts. Clean API.
 - On Bun: skip jiti, use native `import()` (Bun handles .ts natively)
 - Used by Nuxt to load nuxt.config.ts
 
-### npm Name → vivr
-- `viv` is squatted (0.0.1, empty package)
-- `vivr` is available on npm
-- CLI command: `vivr`
+### npm Name → rivr
+- `viv` was rejected by npm as too similar
+- `rivr` is available on npm
+- CLI command: `rivr`
 
 ### Build → tsup
 - esbuild under the hood, fast

@@ -4,10 +4,10 @@ export function packageTemplate(projectName: string, dependencySpec: string): st
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vivr run health-check"
+    "dev": "rivr run health-check"
   },
   "dependencies": {
-    "vivr": "${dependencySpec}"
+    "@papidb/rivr": "${dependencySpec}"
   }
 }
 `

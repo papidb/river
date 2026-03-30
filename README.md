@@ -1,19 +1,19 @@
-# vivr
+# rivr
 
 TypeScript-first API workflow orchestration for developers.
 
-`vivr` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
+`rivr` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
 
 ## Status
 
-`vivr` is currently an **early preview**.
+`rivr` is currently an **early preview**.
 
 What works today:
-- `vivr init [name]`
-- `vivr run <flow>`
+- `rivr init [name]`
+- `rivr run <flow>`
 - TypeScript flow files
-- namespaced runtime context: `vivr.http.*`, `vivr.headers.*`, `vivr.state.*`, `vivr.store.*`
-- flow composition with `vivr.run(otherFlow)`
+- namespaced runtime context: `rivr.http.*`, `rivr.headers.*`, `rivr.state.*`, `rivr.store.*`
+- flow composition with `rivr.run(otherFlow)`
 - in-run state sharing
 - flow caching with `cache: true`
 - public example flows under `examples/jsonplaceholder/`
@@ -24,14 +24,14 @@ What is still in progress:
 - verbose / JSON output modes
 - declarative flow execution
 
-## Why vivr?
+## Why rivr?
 
 Most tools force you into one of two modes:
 
 - **API clients** are great for manual exploration, but awkward for repeatable multi-step setup.
 - **test runners** are great for assertions, but not ideal when your real goal is to bootstrap data, log in, chain requests, and move on.
 
-`vivr` is for the in-between case:
+`rivr` is for the in-between case:
 
 - log in
 - create or fetch setup data
@@ -44,50 +44,73 @@ Most tools force you into one of two modes:
 Each flow is an async function.
 
 ```ts
-import { flow } from 'vivr'
+import { flow } from 'rivr'
 
-export default flow('login', async (vivr) => {
-  const res = await vivr.http.post<{ token: string }>('/auth/login', {
-    email: vivr.env('AUTH_EMAIL'),
-    password: vivr.env('AUTH_PASSWORD'),
+export default flow('login', async (rivr) => {
+  const res = await rivr.http.post<{ token: string }>('/auth/login', {
+    email: rivr.env('AUTH_EMAIL'),
+    password: rivr.env('AUTH_PASSWORD'),
   })
 
-  vivr.headers.set('Authorization', `Bearer ${res.data.token}`)
-  vivr.state.set('login.token', res.data.token)
+  rivr.headers.set('Authorization', `Bearer ${res.data.token}`)
+  rivr.state.set('login.token', res.data.token)
 })
 ```
 
 The runtime context is namespaced for clarity:
 
-- `vivr.http.get/post/put/delete/patch`
-- `vivr.headers.set/remove`
-- `vivr.state.set/get` for in-run state
-- `vivr.store.save/load` for persistent state API surface
-- `vivr.env()`
-- `vivr.run(otherFlow)`
-- `vivr.log()`
+- `rivr.http.get/post/put/delete/patch`
+- `rivr.headers.set/remove`
+- `rivr.state.set/get` for in-run state
+- `rivr.store.save/load` for persistent state API surface
+- `rivr.env()`
+- `rivr.run(otherFlow)`
+- `rivr.log()`
 
 ## Example
 
 ```ts
-import { flow } from 'vivr'
+import { flow } from 'rivr'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.http.get('/get')
-  vivr.log(`Status: ${res.status}`)
+export default flow('health-check', async (rivr) => {
+  const res = await rivr.http.get('/get')
+  rivr.log(`Status: ${res.status}`)
 })
 ```
 
 CLI output:
 
 ```txt
-vivr ▸ health-check (dev)
+rivr ▸ health-check (dev)
 ✓ health-check  200  2527ms
 Status: 200
 1 step completed in 2527ms · all passed
 ```
 
-## Running vivr locally
+## Package and CLI names
+
+- **npm package**: `rivr`
+- **import path**: `rivr`
+- **CLI command**: `rivr`
+
+Examples:
+
+```bash
+npm install rivr
+npx rivr init my-api-flows
+```
+
+```ts
+import { flow, defineConfig } from 'rivr'
+```
+
+After install, the command remains:
+
+```bash
+rivr run health-check
+```
+
+## Running rivr locally
 
 From this repository:
 
@@ -110,32 +133,32 @@ cd examples/jsonplaceholder
 npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain
 ```
 
-## Getting started with `vivr init`
+## Getting started with `rivr init`
 
 Scaffold a minimal project with a single health-check flow:
 
 ```bash
-vivr init my-api-flows
+npx rivr init my-api-flows
 ```
 
 You can also provide defaults non-interactively:
 
 ```bash
-vivr init my-api-flows --yes --base-url http://localhost:4000
+npx rivr init my-api-flows --yes --base-url http://localhost:4000
 ```
 
-If you are creating the vivr project inside another git repository and you do **not** want to commit it, use:
+If you are creating the rivr project inside another git repository and you do **not** want to commit it, use:
 
 ```bash
-vivr init api-flows --git-exclude
+npx rivr init api-flows --git-exclude
 ```
 
 That adds the generated folder to the nearest parent repository's `.git/info/exclude`.
 
-For local development of vivr itself, there is also:
+For local development of rivr itself, there is also:
 
 ```bash
-vivr init api-flows --local
+npx rivr init api-flows --local
 ```
 
 That uses a local `file:` dependency instead of the published npm version.
@@ -155,10 +178,10 @@ my-api-project/
     └── health-check.ts
 ```
 
-### `vivr.config.ts`
+### `rivr.config.ts`
 
 ```ts
-import { defineConfig } from 'vivr'
+import { defineConfig } from 'rivr'
 
 export default defineConfig({
   environments: {
@@ -179,11 +202,11 @@ export default defineConfig({
 ### `flows/health-check.ts`
 
 ```ts
-import { flow } from 'vivr'
+import { flow } from 'rivr'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.http.get('/get')
-  vivr.log(`Status: ${res.status}`)
+export default flow('health-check', async (rivr) => {
+  const res = await rivr.http.get('/get')
+  rivr.log(`Status: ${res.status}`)
 })
 ```
 
@@ -191,7 +214,7 @@ Run it:
 
 ```bash
 pnpm install
-vivr run health-check
+rivr run health-check
 ```
 
 ## Public examples
@@ -364,3 +387,13 @@ Longer-term:
 1. declarative flow support
 2. runtime validation hooks
 3. better packaging and publish flow
+
+## Publishing
+
+Because the unscoped name was rejected by npm, the package is published as a scoped public package:
+
+```bash
+npm publish --access=public
+```
+
+That publishes `rivr`, with the executable command name `rivr`.

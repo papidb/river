@@ -108,7 +108,7 @@ async function ensureLocalBuild(): Promise<void> {
 export const initCommand = defineCommand({
   meta: {
     name: 'init',
-    description: 'Scaffold a new vivr project',
+    description: 'Scaffold a new rivr project',
   },
   args: {
     name: {
@@ -130,7 +130,7 @@ export const initCommand = defineCommand({
     },
     local: {
       type: 'boolean',
-      description: 'Use a local file dependency for vivr instead of the published npm version',
+      description: 'Use a local file dependency for rivr instead of the published npm version',
     },
     yes: {
       type: 'boolean',
@@ -167,6 +167,6 @@ export const initCommand = defineCommand({
     consola.log('Next:')
     consola.log(`  cd ${targetDir}`)
     consola.log(`  ${packageManager} install`)
-    consola.log('  vivr run health-check')
+    consola.log('  rivr run health-check')
   },
 })

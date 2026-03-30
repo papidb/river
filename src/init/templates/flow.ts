@@ -1,5 +1,5 @@
 export function healthCheckFlowTemplate(): string {
-  return `import { flow } from 'vivr'
+  return `import { flow } from '@papidb/rivr'
 
 export default flow('health-check', async (vivr) => {
   const res = await vivr.http.get('/health')
