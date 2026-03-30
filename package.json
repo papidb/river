@@ -1,0 +1,55 @@
+{
+  "name": "vivr",
+  "version": "0.1.0",
+  "description": "API workflow orchestration CLI for developers",
+  "type": "module",
+  "bin": {
+    "vivr": "./dist/bin/vivr.mjs"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "tsx bin/vivr.ts",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "api",
+    "workflow",
+    "cli",
+    "orchestration",
+    "http",
+    "flow"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "citty": "^0.2.1",
+    "consola": "^3.4.2",
+    "dotenv": "^17.3.1",
+    "jiti": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}

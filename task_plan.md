@@ -7,8 +7,8 @@ Design and build "viv", a TypeScript CLI tool that lets developers define, compo
 - [x] Phase 1: Requirements gathering — clarify concept with user
 - [x] Phase 2: Research — explore existing tools, patterns, and the target API
 - [x] Phase 3: Architecture design — types, modules, execution model, folder structure  ✅ Momus approved
-- [ ] Phase 4: Core implementation — flow(), VivContext, FlowRunner, HTTP client
-- [ ] Phase 5: CLI implementation — viv run, viv init, viv list, viv state
+- [x] Phase 4: Core implementation — flow(), VivContext, FlowRunner, HTTP client  ✅ Gate passed
+- [x] Phase 5: CLI implementation — vivr run command  ✅ (init/list/state in Phase 2 of arch)
 - [ ] Phase 6: Init scaffolding — templates, project generation
 - [ ] Phase 7: Example flows — Yohanna search API as first use case
 - [ ] Phase 8: Polish — error handling, output formatting, docs
@@ -61,4 +61,4 @@ Design and build "viv", a TypeScript CLI tool that lets developers define, compo
 - (none yet)
 
 ## Status
-**Phase 3 complete** — architecture.md written and approved by Momus. Ready for Phase 4: Core implementation.
+**Phase 4+5 complete** — Core MVP implemented. 17 files, `tsc --noEmit` clean, gate test passes: `vivr run health-check` → `✓ health-check  200  2527ms`. Ready for Phase 6: Init scaffolding.

@@ -15,12 +15,12 @@
 import { flow } from 'vivr'
 
 export default flow('login', async (vivr) => {
-  const res = await vivr.post<{ token: string }>('/auth/login', {
+  const res = await vivr.http.post<{ token: string }>('/auth/login', {
     email: vivr.env('EMAIL'),
     password: vivr.env('PASSWORD'),
   })
-  vivr.setHeader('Authorization', `Bearer ${res.data.token}`)
-  vivr.store('login.token', res.data.token)
+  vivr.headers.set('Authorization', `Bearer ${res.data.token}`)
+  vivr.state.set('login.token', res.data.token)
 })
 ```
 
@@ -219,37 +219,50 @@ interface DeclarativeStep {
 
 ### 4.2 VivContext
 
-This is the `vivr` object passed to every flow function. It's the entire API surface flow authors interact with.
+This is the `vivr` object passed to every flow function. It's the entire API surface flow authors interact with. Methods are **namespaced** for discoverability and to avoid naming conflicts.
 
 ```typescript
 interface VivContext {
-  // ── HTTP ──
-  get<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-  post<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-  put<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-  delete<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-  patch<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+  // ── HTTP (vivr.http.*) ──
+  // Auto-resolves base URL from active environment
+  // Pass full URL (https://...) to bypass env resolution
+  readonly http: {
+    get<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
+    post<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+    put<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+    delete<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
+    patch<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+  }
 
-  // ── Session Headers ──
-  setHeader(key: string, value: string): void     // Applied to ALL subsequent requests
-  removeHeader(key: string): void
+  // ── Session Headers (vivr.headers.*) ──
+  // Set once, applied to ALL subsequent requests in this run
+  readonly headers: {
+    set(key: string, value: string): void
+    remove(key: string): void
+  }
 
-  // ── State: In-Memory (dies when flow run ends) ──
-  store(key: string, value: unknown): void
-  recall<T = unknown>(key: string): T | undefined
+  // ── State: In-Memory (vivr.state.*) ──
+  // Lives only during the current flow run, dies when run ends
+  readonly state: {
+    set(key: string, value: unknown): void
+    get<T = unknown>(key: string): T | undefined
+  }
 
-  // ── State: Persistent (written to .viv/state.json) ──
-  save(key: string, value: unknown): void
-  load<T = unknown>(key: string): T | undefined
+  // ── State: Persistent (vivr.store.*) ──
+  // Written to .viv/state.json, survives across runs
+  readonly store: {
+    save(key: string, value: unknown): void
+    load<T = unknown>(key: string): T | undefined
+  }
 
-  // ── Environment ──
+  // ── Environment (flat — simple accessor) ──
   env(key: string): string                        // Throws if not found
   env(key: string, fallback: string): string       // Returns fallback if not found
 
-  // ── Composition ──
+  // ── Composition (flat — top-level action) ──
   run(flow: Flow): Promise<void>                   // Execute another flow in this context
 
-  // ── Output ──
+  // ── Output (flat — simple action) ──
   log(message: string): void                       // User-facing log line
 
   // ── Metadata (read-only) ──
@@ -257,6 +270,18 @@ interface VivContext {
   readonly flowName: string                        // Currently executing flow's name
 }
 ```
+
+### Namespace rationale
+
+| Namespace | Why | Example |
+|---|---|---|
+| `vivr.http.*` | Groups all HTTP methods, avoids `.get()` ambiguity with state | `vivr.http.get('/health')` |
+| `vivr.headers.*` | Clearly scoped to request headers, not state | `vivr.headers.set('Authorization', token)` |
+| `vivr.state.*` | In-memory run state — `.get()` is now unambiguous | `vivr.state.set('login.token', token)` |
+| `vivr.store.*` | Persistent disk state — distinct from ephemeral state | `vivr.store.save('lastRun', date)` |
+| `vivr.env()` | Flat — single accessor, no sub-methods needed | `vivr.env('API_KEY')` |
+| `vivr.run()` | Flat — single action, no sub-methods | `vivr.run(loginFlow)` |
+| `vivr.log()` | Flat — single action | `vivr.log('Done')` |
 
 ### 4.3 HTTP Types
 
