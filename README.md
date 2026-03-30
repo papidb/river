@@ -173,7 +173,9 @@ examples/jsonplaceholder/
     ├── get-users.ts
     ├── get-user-posts.ts
     ├── create-post.ts
-    └── full-chain.ts
+    ├── full-chain.ts
+    ├── full-chain-failure.ts
+    └── full-chain-mid-failure.ts
 ```
 
 ### What they demonstrate
@@ -183,12 +185,64 @@ examples/jsonplaceholder/
 - `get-user-posts.ts` — compose another flow, then chain response data into the next request
 - `create-post.ts` — POST request using data from earlier flow state
 - `full-chain.ts` — pipeline-style orchestration across multiple flows
+- `full-chain-failure.ts` — realistic failure pipeline that succeeds through setup steps and then dies on a bad endpoint
+- `full-chain-mid-failure.ts` — succeeds on the first step, fails in the middle, and proves later work does not run
 
 ### Run the full example
 
 ```bash
 cd examples/jsonplaceholder
 npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain
+```
+
+### Run the failure example
+
+```bash
+cd examples/jsonplaceholder
+npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain-failure
+```
+
+### Run the mid-flow failure example
+
+```bash
+cd examples/jsonplaceholder
+npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain-mid-failure
+```
+
+Expected shape of the mid-flow failure output:
+
+```txt
+vivr ▸ full-chain-mid-failure (dev)
+✓ get-users  200  ...ms
+Loaded user: Leanne Graham
+✓ full-chain-mid-failure  404  ...ms
+2 steps completed in ...ms · failed
+
+ERROR  Flow failed: full-chain-mid-failure
+GET https://jsonplaceholder.typicode.com/not-a-real-posts-endpoint
+HTTP 404 Not Found in ...ms
+Response:
+{}
+```
+
+The important part: anything after the failing request does not run.
+
+Expected shape of the failure output:
+
+```txt
+vivr ▸ full-chain-failure (dev)
+✓ get-users  200  ...ms
+↷ get-users (cached)
+✓ get-user-posts  200  ...ms
+About to fail after loading post: "..."
+✓ full-chain-failure  404  ...ms
+3 steps completed in ...ms · failed
+
+ERROR  Flow failed: full-chain-failure
+GET https://jsonplaceholder.typicode.com/not-a-real-endpoint
+HTTP 404 Not Found in ...ms
+Response:
+{}
 ```
 
 Expected shape of the output:
