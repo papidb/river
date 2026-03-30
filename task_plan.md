@@ -9,7 +9,7 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 - [x] Phase 3: Architecture design — types, modules, execution model, folder structure  ✅ Momus approved
 - [x] Phase 4: Core implementation — flow(), VivContext, FlowRunner, HTTP client  ✅ Gate passed
 - [x] Phase 5: CLI implementation — vivr run command  ✅ (init/list/state in Phase 2 of arch)
-- [ ] Phase 6: Init scaffolding — templates, project generation
+- [x] Phase 6: Init scaffolding — templates, project generation  ✅ Verified end-to-end
 - [x] Phase 7: Example flows — public JSONPlaceholder examples  ✅ Verified end-to-end
 - [x] Phase 8: Polish — error handling, output formatting, docs  ✅ Verified
 - [ ] Phase 9: Build & publish setup — tsup/unbuild, npm config, dual runtime
@@ -61,4 +61,4 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 - (none yet)
 
 ## Status
-**Phase 8 complete** — CLI failure output is formatted, minimal reporting is cleaned up, README is written, and verification passed (`tsc --noEmit`, LSP diagnostics, `full-chain`, and forced HTTP failure output). Phase 6 remains intentionally deferred. Next sensible step is Phase 9 build/publish setup or selected advanced runtime features.
+**Phases 6 and 8 complete** — `vivr init` now scaffolds a minimal health-check project, supports `--git-exclude`, and works end-to-end (`init` → install → `vivr run health-check`). CLI failure output and docs are polished, and verification passed (`pnpm build`, `tsc --noEmit`, LSP diagnostics, scaffolded project run, `full-chain`, and forced failure examples). Next sensible step is Phase 9 build/publish setup or selected advanced runtime features.

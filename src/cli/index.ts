@@ -1,15 +1,18 @@
 import { defineCommand, renderUsage, runCommand as executeCommand } from 'citty'
 import { consola } from 'consola'
+import { initCommand } from './commands/init.js'
 import { runCommand } from './commands/run.js'
 import { formatCliError } from './format-error.js'
+import { VIVR_VERSION } from './version.js'
 
 export const cli = defineCommand({
   meta: {
     name: 'vivr',
     description: 'API workflow orchestration CLI',
-    version: '0.1.0',
+    version: VIVR_VERSION,
   },
   subCommands: {
+    init: initCommand,
     run: runCommand,
   },
 })
@@ -22,7 +25,7 @@ export async function runCli(rawArgs = process.argv.slice(2)): Promise<void> {
     }
 
     if (rawArgs.length === 1 && rawArgs[0] === '--version') {
-      consola.log('0.1.0')
+      consola.log(VIVR_VERSION)
       return
     }
 

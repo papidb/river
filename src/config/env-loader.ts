@@ -16,10 +16,10 @@ export async function loadEnvFiles(projectRoot: string, environment: string): Pr
   const envSpecific = join(projectRoot, 'environments', `${environment}.env`)
 
   if (await fileExists(rootEnv)) {
-    loadDotEnv({ path: rootEnv })
+    loadDotEnv({ path: rootEnv, quiet: true })
   }
 
   if (await fileExists(envSpecific)) {
-    loadDotEnv({ path: envSpecific, override: true })
+    loadDotEnv({ path: envSpecific, override: true, quiet: true })
   }
 }

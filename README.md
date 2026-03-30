@@ -9,6 +9,7 @@ TypeScript-first API workflow orchestration for developers.
 `vivr` is currently an **early preview**.
 
 What works today:
+- `vivr init [name]`
 - `vivr run <flow>`
 - TypeScript flow files
 - namespaced runtime context: `vivr.http.*`, `vivr.headers.*`, `vivr.state.*`, `vivr.store.*`
@@ -18,7 +19,6 @@ What works today:
 - public example flows under `examples/jsonplaceholder/`
 
 What is still in progress:
-- `vivr init`
 - `vivr list`
 - persistent disk-backed store
 - verbose / JSON output modes
@@ -110,13 +110,47 @@ cd examples/jsonplaceholder
 npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain
 ```
 
-## Minimal project structure
+## Getting started with `vivr init`
 
-Today, you create the project files manually.
+Scaffold a minimal project with a single health-check flow:
+
+```bash
+vivr init my-api-flows
+```
+
+You can also provide defaults non-interactively:
+
+```bash
+vivr init my-api-flows --yes --base-url http://localhost:4000
+```
+
+If you are creating the vivr project inside another git repository and you do **not** want to commit it, use:
+
+```bash
+vivr init api-flows --git-exclude
+```
+
+That adds the generated folder to the nearest parent repository's `.git/info/exclude`.
+
+For local development of vivr itself, there is also:
+
+```bash
+vivr init api-flows --local
+```
+
+That uses a local `file:` dependency instead of the published npm version.
+
+## Minimal project structure
 
 ```txt
 my-api-project/
 ├── vivr.config.ts
+├── environments/
+│   └── dev.env
+├── .env.example
+├── .gitignore
+├── package.json
+├── tsconfig.json
 └── flows/
     └── health-check.ts
 ```
@@ -156,6 +190,7 @@ export default flow('health-check', async (vivr) => {
 Run it:
 
 ```bash
+pnpm install
 vivr run health-check
 ```
 
@@ -285,11 +320,11 @@ Response:
 
 Implemented now:
 
+- `vivr init [name]`
 - `vivr run <flow>`
 
 Planned next:
 
-- `vivr init`
 - `vivr list`
 - `vivr state ...`
 - `--verbose`

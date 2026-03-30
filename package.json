@@ -6,12 +6,12 @@
   "bin": {
     "vivr": "./dist/bin/vivr.mjs"
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
+  "main": "./dist/src/index.mjs",
+  "module": "./dist/src/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": "./dist/src/index.mjs",
       "types": "./dist/index.d.ts"
     }
   },
