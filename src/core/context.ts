@@ -17,7 +17,7 @@ class FlowCache {
   }
 }
 
-export interface VivContext {
+export interface RiverContext {
   readonly http: {
     get<T = unknown>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
     post<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
@@ -75,7 +75,7 @@ function withTimeout(task: Promise<void>, timeoutMs: number, flowName: string): 
   })
 }
 
-export class VivContextImpl implements VivContext {
+export class VivContextImpl implements RiverContext {
   readonly #environment: string
   readonly #flowNameRef: { name: string }
   readonly #httpClient: HttpClient

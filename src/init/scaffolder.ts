@@ -83,9 +83,9 @@ export async function scaffoldProject(options: ScaffoldProjectOptions): Promise<
   if (await pathExists(targetDir)) {
     const targetStats = await stat(targetDir)
     if (targetStats.isDirectory()) {
-      const configPath = resolve(targetDir, 'rivr.config.ts')
+      const configPath = resolve(targetDir, 'river.config.ts')
       if (await pathExists(configPath)) {
-        throw new VivConfigError(`Target directory already contains a rivr project: ${targetDir}`)
+        throw new VivConfigError(`Target directory already contains a river project: ${targetDir}`)
       }
 
       const dirEntries = await readdir(targetDir)
@@ -99,11 +99,11 @@ export async function scaffoldProject(options: ScaffoldProjectOptions): Promise<
 
   await ensureDir(resolve(targetDir, 'flows'))
   await ensureDir(resolve(targetDir, 'environments'))
-  await ensureDir(resolve(targetDir, '.viv'))
+  await ensureDir(resolve(targetDir, '.river'))
 
   consola.log(`Creating ${options.projectName}/...`)
 
-  await writeFileWithLog(resolve(targetDir, 'rivr.config.ts'), configTemplate(options.projectName, options.baseUrl))
+  await writeFileWithLog(resolve(targetDir, 'river.config.ts'), configTemplate(options.projectName, options.baseUrl))
   await writeFileWithLog(resolve(targetDir, 'flows', 'health-check.ts'), healthCheckFlowTemplate())
   await writeFileWithLog(resolve(targetDir, 'environments', 'dev.env'), '')
   await writeFileWithLog(resolve(targetDir, '.env.example'), envExampleTemplate())

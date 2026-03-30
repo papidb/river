@@ -7,13 +7,13 @@ interface User {
   email: string
 }
 
-export default flow({ name: 'get-users', cache: true }, async (vivr) => {
-  const res = await vivr.http.get<User[]>('/users')
+export default flow({ name: 'get-users', cache: true }, async (river) => {
+  const res = await river.http.get<User[]>('/users')
 
-  vivr.state.set('users.list', res.data)
-  vivr.state.set('users.count', res.data.length)
-  vivr.state.set('users.first', res.data[0])
+  river.state.set('users.list', res.data)
+  river.state.set('users.count', res.data.length)
+  river.state.set('users.first', res.data[0])
 
-  vivr.log(`Fetched ${res.data.length} users`)
-  vivr.log(`First user: ${res.data[0].name} (${res.data[0].email})`)
+  river.log(`Fetched ${res.data.length} users`)
+  river.log(`First user: ${res.data[0].name} (${res.data[0].email})`)
 })

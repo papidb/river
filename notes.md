@@ -1,4 +1,4 @@
-# Notes: viv Research
+# Notes: river Research
 
 ## Source 1: Existing E2E Runner (~/batcave/e2e-runner)
 
@@ -8,9 +8,9 @@
 - Clean separation: core/ (types, http, runner), config/ (envs, test-cases), output/ (console, markdown), validators/, utils/
 
 ### Reusable Patterns
-- **HttpClient**: fetch wrapper with bearer auth, env-based URLs — good reference for viv's HTTP client
-- **Environment config**: multi-env (local/dev/staging/prod) with baseUrl + defaultHeaders — maps directly to viv's env model
-- **OutputAdapter**: abstract base class with console + markdown implementations — strategy pattern for viv's output
+- **HttpClient**: fetch wrapper with bearer auth, env-based URLs — good reference for river's HTTP client
+- **Environment config**: multi-env (local/dev/staging/prod) with baseUrl + defaultHeaders — maps directly to river's env model
+- **OutputAdapter**: abstract base class with console + markdown implementations — strategy pattern for river's output
 - **PerformanceTracker**: timing per operation — reuse for step duration tracking
 
 ### Key Gap
@@ -42,7 +42,7 @@
 ### Collections
 - faith_stories, series_info, bible_verses, series_episodes
 
-### Chaining Opportunities (first viv use case)
+### Chaining Opportunities (first river use case)
 - Search → extract IDs → Get by ID
 - Login → set auth header → Search → paginate with cursor
 
@@ -71,7 +71,7 @@
 - BUT: way too heavy for this use case
 
 ### Verdict
-Nothing does exactly what viv aims to do. Step CI is closest but assertion-oriented. Custom build justified.
+Nothing does exactly what river aims to do. Step CI is closest but assertion-oriented. Custom build justified.
 
 ---
 
@@ -93,12 +93,12 @@ Nothing does exactly what viv aims to do. Step CI is closest but assertion-orien
 - **.env for secrets**: Universal pattern — .env.local gitignored, .env.example committed
 - **CLI flag selection**: `--env staging` to switch
 
-### Principles for viv init
+### Principles for river init
 1. Minimal by default — only essential files
 2. Git-friendly — YAML/TS config, .gitignore included
 3. Working example — health check flow that runs immediately
 4. Onboarding — .env.example + README for teammates
-5. Type safety — viv.config.ts with defineConfig()
+5. Type safety — river.config.ts with defineConfig()
 
 ---
 
@@ -110,22 +110,22 @@ Nothing does exactly what viv aims to do. Step CI is closest but assertion-orien
 | Bruno | `{{variable}}` | Collection/Environment |
 | Serverless Workflow | `${ .path }` | JSON path expressions |
 
-viv uses TypeScript, so no template syntax needed — just `viv.recall('key')` and `viv.env('KEY')`.
+river uses TypeScript, so no template syntax needed — just `river.recall('key')` and `river.env('KEY')`.
 
 ---
 
 ## API Design Naming (Resolved)
 
-### Conflict: `viv.get()` for HTTP GET vs state retrieval
+### Conflict: `river.get()` for HTTP GET vs state retrieval
 **Resolution**:
-- HTTP: `viv.get()`, `viv.post()`, `viv.put()`, `viv.delete()`, `viv.patch()`
-- In-memory state: `viv.store(key, val)` / `viv.recall(key)`
-- Persistent state: `viv.save(key, val)` / `viv.load(key)`
-- Headers: `viv.setHeader(k, v)` / `viv.removeHeader(k)`
-- Environment: `viv.env(key)` / `viv.env(key, fallback)`
-- Composition: `viv.run(flow)`
-- Logging: `viv.log(message)`
-- Metadata: `viv.environment` (readonly), `viv.flowName` (readonly)
+- HTTP: `river.get()`, `river.post()`, `river.put()`, `river.delete()`, `river.patch()`
+- In-memory state: `river.store(key, val)` / `river.recall(key)`
+- Persistent state: `river.save(key, val)` / `river.load(key)`
+- Headers: `river.setHeader(k, v)` / `river.removeHeader(k)`
+- Environment: `river.env(key)` / `river.env(key, fallback)`
+- Composition: `river.run(flow)`
+- Logging: `river.log(message)`
+- Metadata: `river.environment` (readonly), `river.flowName` (readonly)
 
 No naming conflicts. Clean API.
 
@@ -145,10 +145,10 @@ No naming conflicts. Clean API.
 - On Bun: skip jiti, use native `import()` (Bun handles .ts natively)
 - Used by Nuxt to load nuxt.config.ts
 
-### npm Name → rivr
-- `viv` was rejected by npm as too similar
-- `rivr` is available on npm
-- CLI command: `rivr`
+### npm Name → river
+- `river` was rejected by npm as too similar
+- `river` is available on npm
+- CLI command: `river`
 
 ### Build → tsup
 - esbuild under the hood, fast

@@ -26,7 +26,7 @@ export class FlowRunner {
     const targetEnv = options.env ?? config.defaultEnv ?? availableEnvironments[0]
 
     if (!targetEnv || !config.environments[targetEnv]) {
-      throw new VivConfigError(`Environment "${targetEnv}" not found in rivr.config.ts`)
+      throw new VivConfigError(`Environment "${targetEnv}" not found in river.config.ts`)
     }
 
     const envConfig = config.environments[targetEnv]

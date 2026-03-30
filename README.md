@@ -1,37 +1,37 @@
-# rivr
+# river
 
 TypeScript-first API workflow orchestration for developers.
 
-`rivr` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
+`river` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
 
 ## Status
 
-`rivr` is currently an **early preview**.
+`river` is currently an **early preview**.
 
 What works today:
-- `rivr init [name]`
-- `rivr run <flow>`
+- `river init [name]`
+- `river run <flow>`
 - TypeScript flow files
-- namespaced runtime context: `rivr.http.*`, `rivr.headers.*`, `rivr.state.*`, `rivr.store.*`
-- flow composition with `rivr.run(otherFlow)`
+- namespaced runtime context: `river.http.*`, `river.headers.*`, `river.state.*`, `river.store.*`
+- flow composition with `river.run(otherFlow)`
 - in-run state sharing
 - flow caching with `cache: true`
 - public example flows under `examples/jsonplaceholder/`
 
 What is still in progress:
-- `vivr list`
+- `river list`
 - persistent disk-backed store
 - verbose / JSON output modes
 - declarative flow execution
 
-## Why rivr?
+## Why river?
 
 Most tools force you into one of two modes:
 
 - **API clients** are great for manual exploration, but awkward for repeatable multi-step setup.
 - **test runners** are great for assertions, but not ideal when your real goal is to bootstrap data, log in, chain requests, and move on.
 
-`rivr` is for the in-between case:
+`river` is for the in-between case:
 
 - log in
 - create or fetch setup data
@@ -44,44 +44,44 @@ Most tools force you into one of two modes:
 Each flow is an async function.
 
 ```ts
-import { flow } from 'rivr'
+import { flow } from '@papidb/river'
 
-export default flow('login', async (rivr) => {
-  const res = await rivr.http.post<{ token: string }>('/auth/login', {
-    email: rivr.env('AUTH_EMAIL'),
-    password: rivr.env('AUTH_PASSWORD'),
+export default flow('login', async (river) => {
+  const res = await river.http.post<{ token: string }>('/auth/login', {
+    email: river.env('AUTH_EMAIL'),
+    password: river.env('AUTH_PASSWORD'),
   })
 
-  rivr.headers.set('Authorization', `Bearer ${res.data.token}`)
-  rivr.state.set('login.token', res.data.token)
+  river.headers.set('Authorization', `Bearer ${res.data.token}`)
+  river.state.set('login.token', res.data.token)
 })
 ```
 
 The runtime context is namespaced for clarity:
 
-- `rivr.http.get/post/put/delete/patch`
-- `rivr.headers.set/remove`
-- `rivr.state.set/get` for in-run state
-- `rivr.store.save/load` for persistent state API surface
-- `rivr.env()`
-- `rivr.run(otherFlow)`
-- `rivr.log()`
+- `river.http.get/post/put/delete/patch`
+- `river.headers.set/remove`
+- `river.state.set/get` for in-run state
+- `river.store.save/load` for persistent state API surface
+- `river.env()`
+- `river.run(otherFlow)`
+- `river.log()`
 
 ## Example
 
 ```ts
-import { flow } from 'rivr'
+import { flow } from '@papidb/river'
 
-export default flow('health-check', async (rivr) => {
-  const res = await rivr.http.get('/get')
-  rivr.log(`Status: ${res.status}`)
+export default flow('health-check', async (river) => {
+  const res = await river.http.get('/get')
+  river.log(`Status: ${res.status}`)
 })
 ```
 
 CLI output:
 
 ```txt
-rivr ▸ health-check (dev)
+river ▸ health-check (dev)
 ✓ health-check  200  2527ms
 Status: 200
 1 step completed in 2527ms · all passed
@@ -89,28 +89,28 @@ Status: 200
 
 ## Package and CLI names
 
-- **npm package**: `rivr`
-- **import path**: `rivr`
-- **CLI command**: `rivr`
+- **npm package**: `@papidb/river`
+- **import path**: `@papidb/river`
+- **CLI command**: `river`
 
 Examples:
 
 ```bash
-npm install rivr
-npx rivr init my-api-flows
+npm install @papidb/river
+npx @papidb/river init my-api-flows
 ```
 
 ```ts
-import { flow, defineConfig } from 'rivr'
+import { flow, defineConfig } from '@papidb/river'
 ```
 
 After install, the command remains:
 
 ```bash
-rivr run health-check
+river run health-check
 ```
 
-## Running rivr locally
+## Running river locally
 
 From this repository:
 
@@ -123,42 +123,42 @@ pnpm dev -- --help
 Run a flow from a project directory:
 
 ```bash
-npx tsx /absolute/path/to/vivr/bin/vivr.ts run health-check
+npx tsx /absolute/path/to/river/bin/river.ts run health-check
 ```
 
 Or from this repository's example:
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain
+npx tsx /absolute/path/to/river/bin/river.ts run full-chain
 ```
 
-## Getting started with `rivr init`
+## Getting started with `river init`
 
 Scaffold a minimal project with a single health-check flow:
 
 ```bash
-npx rivr init my-api-flows
+npx @papidb/river init my-api-flows
 ```
 
 You can also provide defaults non-interactively:
 
 ```bash
-npx rivr init my-api-flows --yes --base-url http://localhost:4000
+npx @papidb/river init my-api-flows --yes --base-url http://localhost:4000
 ```
 
-If you are creating the rivr project inside another git repository and you do **not** want to commit it, use:
+If you are creating the river project inside another git repository and you do **not** want to commit it, use:
 
 ```bash
-npx rivr init api-flows --git-exclude
+npx @papidb/river init api-flows --git-exclude
 ```
 
 That adds the generated folder to the nearest parent repository's `.git/info/exclude`.
 
-For local development of rivr itself, there is also:
+For local development of river itself, there is also:
 
 ```bash
-npx rivr init api-flows --local
+npx @papidb/river init api-flows --local
 ```
 
 That uses a local `file:` dependency instead of the published npm version.
@@ -167,7 +167,7 @@ That uses a local `file:` dependency instead of the published npm version.
 
 ```txt
 my-api-project/
-├── vivr.config.ts
+├── river.config.ts
 ├── environments/
 │   └── dev.env
 ├── .env.example
@@ -178,10 +178,10 @@ my-api-project/
     └── health-check.ts
 ```
 
-### `rivr.config.ts`
+### `river.config.ts`
 
 ```ts
-import { defineConfig } from 'rivr'
+import { defineConfig } from '@papidb/river'
 
 export default defineConfig({
   environments: {
@@ -202,11 +202,11 @@ export default defineConfig({
 ### `flows/health-check.ts`
 
 ```ts
-import { flow } from 'rivr'
+import { flow } from '@papidb/river'
 
-export default flow('health-check', async (rivr) => {
-  const res = await rivr.http.get('/get')
-  rivr.log(`Status: ${res.status}`)
+export default flow('health-check', async (river) => {
+  const res = await river.http.get('/get')
+  river.log(`Status: ${res.status}`)
 })
 ```
 
@@ -214,7 +214,7 @@ Run it:
 
 ```bash
 pnpm install
-rivr run health-check
+river run health-check
 ```
 
 ## Public examples
@@ -225,7 +225,7 @@ Directory:
 
 ```txt
 examples/jsonplaceholder/
-├── vivr.config.ts
+├── river.config.ts
 └── flows/
     ├── health-check.ts
     ├── get-users.ts
@@ -250,27 +250,27 @@ examples/jsonplaceholder/
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain
+npx tsx /absolute/path/to/river/bin/river.ts run full-chain
 ```
 
 ### Run the failure example
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain-failure
+npx tsx /absolute/path/to/river/bin/river.ts run full-chain-failure
 ```
 
 ### Run the mid-flow failure example
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/vivr/bin/vivr.ts run full-chain-mid-failure
+npx tsx /absolute/path/to/river/bin/river.ts run full-chain-mid-failure
 ```
 
 Expected shape of the mid-flow failure output:
 
 ```txt
-vivr ▸ full-chain-mid-failure (dev)
+river ▸ full-chain-mid-failure (dev)
 ✓ get-users  200  ...ms
 Loaded user: Leanne Graham
 ✓ full-chain-mid-failure  404  ...ms
@@ -288,7 +288,7 @@ The important part: anything after the failing request does not run.
 Expected shape of the failure output:
 
 ```txt
-vivr ▸ full-chain-failure (dev)
+river ▸ full-chain-failure (dev)
 ✓ get-users  200  ...ms
 ↷ get-users (cached)
 ✓ get-user-posts  200  ...ms
@@ -306,7 +306,7 @@ Response:
 Expected shape of the output:
 
 ```txt
-vivr ▸ full-chain (dev)
+river ▸ full-chain (dev)
 ✓ get-users  200  ...ms
 ↷ get-users (cached)
 ✓ get-user-posts  200  ...ms
@@ -317,7 +317,7 @@ vivr ▸ full-chain (dev)
 
 ## Error handling
 
-`vivr` stops on failure by default.
+`river` stops on failure by default.
 
 If a request fails, the CLI now prints the useful parts of the failure:
 
@@ -343,13 +343,13 @@ Response:
 
 Implemented now:
 
-- `vivr init [name]`
-- `vivr run <flow>`
+- `river init [name]`
+- `river run <flow>`
 
 Planned next:
 
-- `vivr list`
-- `vivr state ...`
+- `river list`
+- `river state ...`
 - `--verbose`
 - `--json`
 
@@ -377,9 +377,9 @@ pnpm dev -- --help
 Short-term:
 
 1. polish docs and output further
-2. add `vivr list`
+2. add `river list`
 3. add persistent JSON-backed store
-4. add `vivr init`
+4. add `river init`
 5. add verbose and machine-readable output
 
 Longer-term:
@@ -396,4 +396,4 @@ Because the unscoped name was rejected by npm, the package is published as a sco
 npm publish --access=public
 ```
 
-That publishes `rivr`, with the executable command name `rivr`.
+That publishes `river`, with the executable command name `river`.

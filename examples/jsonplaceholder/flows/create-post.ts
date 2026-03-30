@@ -8,21 +8,21 @@ interface CreatedPost {
   userId: number
 }
 
-export default flow('create-post', async (vivr) => {
-  await vivr.run(getUsers)
+export default flow('create-post', async (river) => {
+  await river.run(getUsers)
 
-  const firstUser = vivr.state.get<{ id: number; name: string }>('users.first')
+  const firstUser = river.state.get<{ id: number; name: string }>('users.first')
   if (!firstUser) {
-    vivr.log('No users found — skipping')
+    river.log('No users found — skipping')
     return
   }
 
-  const res = await vivr.http.post<CreatedPost>('/posts', {
-    title: 'Hello from vivr',
-    body: 'This post was created by a vivr flow',
+  const res = await river.http.post<CreatedPost>('/posts', {
+    title: 'Hello from river',
+    body: 'This post was created by a river flow',
     userId: firstUser.id,
   })
 
-  vivr.state.set('post.created', res.data)
-  vivr.log(`Created post #${res.data.id}: "${res.data.title}"`)
+  river.state.set('post.created', res.data)
+  river.log(`Created post #${res.data.id}: "${res.data.title}"`)
 })

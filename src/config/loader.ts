@@ -5,7 +5,7 @@ import { createJiti } from 'jiti'
 import { VivConfigError } from '../core/errors.js'
 import type { VivConfig } from './types.js'
 
-const CONFIG_FILE = 'rivr.config.ts'
+const CONFIG_FILE = 'river.config.ts'
 
 async function exists(path: string): Promise<boolean> {
   try {

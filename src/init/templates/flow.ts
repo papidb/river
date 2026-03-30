@@ -1,9 +1,9 @@
 export function healthCheckFlowTemplate(): string {
-  return `import { flow } from '@papidb/rivr'
+  return `import { flow } from '@papidb/river'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.http.get('/health')
-  vivr.log(\`Status: \${res.status}\`)
+export default flow('health-check', async (river) => {
+  const res = await river.http.get('/health')
+  river.log(\`Status: \${res.status}\`)
 })
 `
 }

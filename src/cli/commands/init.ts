@@ -10,7 +10,7 @@ import { consola } from 'consola'
 import { scaffoldProject, type PackageManager } from '../../init/scaffolder.js'
 import { VIVR_VERSION } from '../version.js'
 
-const DEFAULT_PROJECT_NAME = 'vivr-project'
+const DEFAULT_PROJECT_NAME = 'river-project'
 const DEFAULT_BASE_URL = 'http://localhost:3000'
 const DEFAULT_PACKAGE_MANAGER: PackageManager = 'pnpm'
 const execFileAsync = promisify(execFile)
@@ -93,13 +93,13 @@ function resolveDependencySpec(useLocal: boolean): string {
 
 async function ensureLocalBuild(): Promise<void> {
   const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
-  const distBin = resolve(packageRoot, 'dist', 'bin', 'vivr.mjs')
+  const distBin = resolve(packageRoot, 'dist', 'bin', 'river.mjs')
 
   try {
     await access(distBin)
     return
   } catch {
-    consola.log('Building local vivr package for --local...')
+    consola.log('Building local river package for --local...')
   }
 
   await execFileAsync('pnpm', ['build'], { cwd: packageRoot })
@@ -108,7 +108,7 @@ async function ensureLocalBuild(): Promise<void> {
 export const initCommand = defineCommand({
   meta: {
     name: 'init',
-    description: 'Scaffold a new rivr project',
+    description: 'Scaffold a new river project',
   },
   args: {
     name: {
@@ -130,7 +130,7 @@ export const initCommand = defineCommand({
     },
     local: {
       type: 'boolean',
-      description: 'Use a local file dependency for rivr instead of the published npm version',
+      description: 'Use a local file dependency for river instead of the published npm version',
     },
     yes: {
       type: 'boolean',
@@ -167,6 +167,6 @@ export const initCommand = defineCommand({
     consola.log('Next:')
     consola.log(`  cd ${targetDir}`)
     consola.log(`  ${packageManager} install`)
-    consola.log('  rivr run health-check')
+    consola.log('  river run health-check')
   },
 })

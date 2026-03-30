@@ -1,4 +1,4 @@
-# vivr — Architecture
+# river — Architecture
 
 > API workflow orchestration CLI for developers.
 > Define flows as TypeScript functions. Compose them. Run them against any API.
@@ -7,44 +7,44 @@
 
 ## 1. Overview
 
-**vivr** is a CLI tool that lets developers define reusable API workflow flows in TypeScript. Unlike test runners (which assert) or API clients (which are manual), vivr automates multi-step API interactions — login, create resources, chain data, bootstrap environments.
+**river** is a CLI tool that lets developers define reusable API workflow flows in TypeScript. Unlike test runners (which assert) or API clients (which are manual), river automates multi-step API interactions — login, create resources, chain data, bootstrap environments.
 
-**Mental model**: Each flow is an async function that receives a `vivr` context object. That object gives you HTTP methods, state management, environment variables, and the ability to call other flows. Pipelines are just flows that compose other flows.
+**Mental model**: Each flow is an async function that receives a `river` context object. That object gives you HTTP methods, state management, environment variables, and the ability to call other flows. Pipelines are just flows that compose other flows.
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 
-export default flow('login', async (vivr) => {
-  const res = await vivr.post<{ token: string }>('/auth/login', {
-    email: vivr.env('EMAIL'),
-    password: vivr.env('PASSWORD'),
+export default flow('login', async (river) => {
+  const res = await river.post<{ token: string }>('/auth/login', {
+    email: river.env('EMAIL'),
+    password: river.env('PASSWORD'),
   })
-  vivr.setHeader('Authorization', `Bearer ${res.data.token}`)
-  vivr.store('login.token', res.data.token)
+  river.setHeader('Authorization', `Bearer ${res.data.token}`)
+  river.store('login.token', res.data.token)
 })
 ```
 
 ```
-$ vivr run login --env dev
+$ river run login --env dev
   ✓ login  201  45ms
   1 step completed in 45ms
 ```
 
 ---
 
-## 2. Project Structure (vivr source code)
+## 2. Project Structure (river source code)
 
 ```
-~/batcave/viv/
+~/batcave/river/
 ├── src/
 │   ├── index.ts                 # Public SDK exports: flow, defineConfig, types
 │   │
 │   ├── cli/
 │   │   ├── index.ts             # CLI entry point — parse args, route to commands
 │   │   ├── commands/
-│   │   │   ├── init.ts          # vivr init [name]
-│   │   │   ├── run.ts           # vivr run <flow> [--env] [--verbose]
-│   │   │   └── list.ts          # vivr list
+│   │   │   ├── init.ts          # river init [name]
+│   │   │   ├── run.ts           # river run <flow> [--env] [--verbose]
+│   │   │   └── list.ts          # river list
 │   │   └── output/
 │   │       ├── reporter.ts      # Reporter interface
 │   │       ├── minimal.ts       # Default: ✓ step-name  status  duration
@@ -53,7 +53,7 @@ $ vivr run login --env dev
 │   │
 │   ├── core/
 │   │   ├── flow.ts              # flow() factory, Flow interface, isFlow() guard
-│   │   ├── context.ts           # VivContext class — the `vivr` object
+│   │   ├── context.ts           # RiverContext class — the `river` object
 │   │   ├── runner.ts            # FlowRunner — lifecycle, execution, error handling
 │   │   ├── loader.ts            # Dynamic import of .ts flow files (jiti/Bun)
 │   │   └── errors.ts            # VivHttpError, VivFlowError, VivConfigError
@@ -64,18 +64,18 @@ $ vivr run login --env dev
 │   │
 │   ├── state/
 │   │   ├── memory-store.ts      # In-memory Map<string, unknown> (current run)
-│   │   ├── persistent-store.ts  # JSON file read/write (.viv/state.json)
+│   │   ├── persistent-store.ts  # JSON file read/write (.river/state.json)
 │   │   └── types.ts             # StateStore interface
 │   │
 │   ├── config/
-│   │   ├── loader.ts            # Find and import vivr.config.ts
+│   │   ├── loader.ts            # Find and import river.config.ts
 │   │   ├── env-loader.ts        # Load .env + environments/<env>.env
 │   │   └── types.ts             # VivConfig, EnvironmentConfig
 │   │
 │   └── init/
 │       ├── scaffolder.ts        # mkdir, write files, install deps
 │       └── templates/           # Raw template strings
-│           ├── config.ts        # vivr.config.ts template
+│           ├── config.ts        # river.config.ts template
 │           ├── flow.ts          # health-check.ts template
 │           ├── env.ts           # .env.example template
 │           ├── gitignore.ts     # .gitignore template
@@ -83,7 +83,7 @@ $ vivr run login --env dev
 │           └── package.ts       # package.json template
 │
 ├── bin/
-│   └── vivr.ts                  # #!/usr/bin/env node — entry point
+│   └── river.ts                  # #!/usr/bin/env node — entry point
 │
 ├── package.json
 ├── tsconfig.json
@@ -91,21 +91,21 @@ $ vivr run login --env dev
 ```
 
 ### Why this layout
-- **`src/index.ts`** — what users import: `import { flow, defineConfig } from 'vivr'`
+- **`src/index.ts`** — what users import: `import { flow, defineConfig } from 'river'`
 - **`src/cli/`** — CLI-only code, not imported by flow authors
 - **`src/core/`** — runtime engine, used by both CLI and SDK
 - **`src/http/`** — isolated HTTP layer, testable independently
 - **`src/state/`** — state backends behind an interface (swap JSON for SQLite later)
 - **`src/config/`** — config loading isolated from core logic
-- **`src/init/`** — scaffolding templates, only used by `vivr init`
+- **`src/init/`** — scaffolding templates, only used by `river init`
 
 ---
 
-## 3. Scaffolded Project (after `vivr init`)
+## 3. Scaffolded Project (after `river init`)
 
 ```
 my-api-project/
-├── vivr.config.ts              # Project configuration (environments, defaults)
+├── river.config.ts              # Project configuration (environments, defaults)
 ├── .env                        # Local secrets — gitignored
 ├── .env.example                # Template for teammates — committed
 ├── flows/
@@ -114,17 +114,17 @@ my-api-project/
 │   ├── dev.env                 # Dev-specific vars (BASE_URL, etc.)
 │   ├── staging.env
 │   └── prod.env
-├── .viv/
+├── .river/
 │   └── state.json              # Persistent state — gitignored
 ├── .gitignore
-├── package.json                # Has vivr as dependency
+├── package.json                # Has river as dependency
 └── tsconfig.json               # Configured for flow authoring
 ```
 
-### Generated vivr.config.ts
+### Generated river.config.ts
 
 ```typescript
-import { defineConfig } from 'vivr'
+import { defineConfig } from 'river'
 
 export default defineConfig({
   name: 'my-api-project',
@@ -155,11 +155,11 @@ export default defineConfig({
 ### Generated flows/health-check.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.get('/health')
-  vivr.log(`Status: ${res.status} — ${JSON.stringify(res.data)}`)
+export default flow('health-check', async (river) => {
+  const res = await river.get('/health')
+  river.log(`Status: ${res.status} — ${JSON.stringify(res.data)}`)
 })
 ```
 
@@ -177,12 +177,12 @@ function flow(name: string, fn: FlowFn): Flow
 // Options form
 function flow(options: FlowOptions, fn: FlowFn): Flow
 
-type FlowFn = (vivr: VivContext) => Promise<void>
+type FlowFn = (river: RiverContext) => Promise<void>
 
 interface FlowOptions {
   name: string
   description?: string
-  cache?: boolean       // If true, skip re-run when called via vivr.run() in same session
+  cache?: boolean       // If true, skip re-run when called via river.run() in same session
   timeout?: number      // Per-flow timeout in ms (default: 30000)
 }
 
@@ -192,7 +192,7 @@ interface Flow {
   readonly name: string
   readonly options: Required<FlowOptions>  // defaults filled in
   readonly execute: FlowFn
-  readonly __brand: 'vivr-flow'            // runtime type guard
+  readonly __brand: 'river-flow'            // runtime type guard
 }
 
 function isFlow(value: unknown): value is Flow
@@ -217,12 +217,12 @@ interface DeclarativeStep {
 }
 ```
 
-### 4.2 VivContext
+### 4.2 RiverContext
 
-This is the `vivr` object passed to every flow function. It's the entire API surface flow authors interact with.
+This is the `river` object passed to every flow function. It's the entire API surface flow authors interact with.
 
 ```typescript
-interface VivContext {
+interface RiverContext {
   // ── HTTP ──
   get<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
   post<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
@@ -238,7 +238,7 @@ interface VivContext {
   store(key: string, value: unknown): void
   recall<T = unknown>(key: string): T | undefined
 
-  // ── State: Persistent (written to .viv/state.json) ──
+  // ── State: Persistent (written to .river/state.json) ──
   save(key: string, value: unknown): void
   load<T = unknown>(key: string): T | undefined
 
@@ -297,7 +297,7 @@ interface VivConfig {
 interface EnvironmentConfig {
   baseUrl: string
   headers?: Record<string, string>        // Merged with defaults.headers
-  vars?: Record<string, string>           // Available via vivr.env() alongside process.env
+  vars?: Record<string, string>           // Available via river.env() alongside process.env
 }
 
 function defineConfig(config: VivConfig): VivConfig  // Identity fn for type inference
@@ -346,11 +346,11 @@ class VivConfigError extends VivError {
 ### 5.1 Flow Lifecycle
 
 ```
-vivr run <flow-name> --env <env>
+river run <flow-name> --env <env>
        │
        ▼
 ┌─ 1. Config ─────────────────────────────────────────────┐
-│  • Find vivr.config.ts (walk up from cwd)               │
+│  • Find river.config.ts (walk up from cwd)               │
 │  • Load via jiti (Node) or native import (Bun)           │
 │  • Resolve target environment (--env flag or defaultEnv) │
 │  • Load .env → environments/<env>.env → merge            │
@@ -359,11 +359,11 @@ vivr run <flow-name> --env <env>
                      ▼
 ┌─ 2. Init ───────────────────────────────────────────────┐
 │  • Create MemoryStore (empty)                           │
-│  • Create PersistentStore (load .viv/state.json)        │
+│  • Create PersistentStore (load .river/state.json)        │
 │  • Create HttpClient (baseUrl, default headers, timeout)│
 │  • Create FlowCache (empty)                             │
 │  • Create Reporter (minimal / verbose / json)           │
-│  • Create VivContext (wires everything together)         │
+│  • Create RiverContext (wires everything together)         │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
@@ -379,7 +379,7 @@ vivr run <flow-name> --env <env>
 ┌─ 4. Execute ────────────────────────────────────────────┐
 │  • Call flow.execute(context)                           │
 │  │                                                      │
-│  ├─ On vivr.get/post/put/delete/patch:                  │
+│  ├─ On river.get/post/put/delete/patch:                  │
 │  │   1. Resolve URL (baseUrl + path, or full URL)       │
 │  │   2. Merge headers: config → env → session → request │
 │  │   3. Start timer                                     │
@@ -391,24 +391,24 @@ vivr run <flow-name> --env <env>
 │  │   9. If !ok (non-2xx) → throw VivHttpError           │
 │  │   10. Return VivResponse<T>                          │
 │  │                                                      │
-│  ├─ On vivr.run(otherFlow):                             │
+│  ├─ On river.run(otherFlow):                             │
 │  │   1. Check FlowCache for otherFlow.name              │
 │  │   2. If cached + cache:true → skip, log "(cached)"   │
 │  │   3. Else → execute otherFlow.execute(context)       │
 │  │   4. Register in FlowCache                           │
 │  │                                                      │
-│  ├─ On vivr.store/recall: read/write MemoryStore        │
-│  ├─ On vivr.save/load: read/write PersistentStore       │
-│  ├─ On vivr.setHeader: update session headers           │
-│  ├─ On vivr.env: check env vars + config vars           │
-│  ├─ On vivr.log: forward to Reporter                    │
+│  ├─ On river.store/recall: read/write MemoryStore        │
+│  ├─ On river.save/load: read/write PersistentStore       │
+│  ├─ On river.setHeader: update session headers           │
+│  ├─ On river.env: check env vars + config vars           │
+│  ├─ On river.log: forward to Reporter                    │
 │  │                                                      │
 │  └─ On error: catch → wrap in VivFlowError → rethrow    │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
 ┌─ 5. Cleanup ────────────────────────────────────────────┐
-│  • PersistentStore.flush() → write .viv/state.json      │
+│  • PersistentStore.flush() → write .river/state.json      │
 │  • Reporter.summary() → print total steps, duration     │
 │  • Exit 0 (success) or exit 1 (error)                   │
 └─────────────────────────────────────────────────────────┘
@@ -458,12 +458,12 @@ class FlowCache {
 
 ### 5.5 Environment Variable Resolution
 
-`vivr.env('KEY')` checks in order:
+`river.env('KEY')` checks in order:
 1. `process.env.KEY` (from .env and environments/<env>.env)
 2. `config.environments[activeEnv].vars.KEY`
 3. If neither → throw `VivConfigError('Environment variable "KEY" not found')`
 
-With fallback: `vivr.env('KEY', 'default')` returns `'default'` instead of throwing.
+With fallback: `river.env('KEY', 'default')` returns `'default'` instead of throwing.
 
 ### 5.6 Flow File Loading (cross-runtime)
 
@@ -493,10 +493,10 @@ async function loadFlowFile(filePath: string): Promise<Flow | DeclarativeFlow> {
 
 ## 6. CLI Commands
 
-### `vivr init [name]`
+### `river init [name]`
 
 ```
-$ vivr init my-api
+$ river init my-api
 
   ◆ Package manager?
   │ ○ bun
@@ -508,7 +508,7 @@ $ vivr init my-api
   │ http://localhost:3000
 
   Creating my-api/...
-    ✓ vivr.config.ts
+    ✓ river.config.ts
     ✓ flows/health-check.ts
     ✓ environments/dev.env
     ✓ .env.example
@@ -519,15 +519,15 @@ $ vivr init my-api
   Next:
     cd my-api
     pnpm install
-    vivr run health-check
+    river run health-check
 ```
 
-### `vivr run <flow> [options]`
+### `river run <flow> [options]`
 
 ```
-$ vivr run search-stories --env dev
+$ river run search-stories --env dev
 
-  vivr ▸ search-stories (dev)
+  river ▸ search-stories (dev)
 
   ✓ login            201   45ms
   ✓ search-stories   200  234ms   12 records
@@ -543,10 +543,10 @@ $ vivr run search-stories --env dev
 | `--timeout <ms>` | Override default timeout |
 | `--dry-run` | Print what would execute, don't send requests |
 
-### `vivr list`
+### `river list`
 
 ```
-$ vivr list
+$ river list
 
   Flows in ./flows/
 
@@ -565,10 +565,10 @@ Discovery: globs `flowsDir/**/*.ts`, imports each, reads `name` and `description
 
 ## 7. Example Flows (Yohanna Search API)
 
-### vivr.config.ts
+### river.config.ts
 
 ```typescript
-import { defineConfig } from 'vivr'
+import { defineConfig } from 'river'
 
 export default defineConfig({
   name: 'yohanna-search',
@@ -602,41 +602,41 @@ export default defineConfig({
 ### flows/health-check.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.get('/health')
-  vivr.log(`API is ${res.data === 'Ok' ? 'healthy' : 'unhealthy'}`)
+export default flow('health-check', async (river) => {
+  const res = await river.get('/health')
+  river.log(`API is ${res.data === 'Ok' ? 'healthy' : 'unhealthy'}`)
 })
 ```
 
 ### flows/login.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 
-export default flow({ name: 'login', description: 'Authenticate and set bearer token', cache: true }, async (vivr) => {
-  const res = await vivr.post<{ token: string }>('/auth/login', {
-    email: vivr.env('AUTH_EMAIL'),
-    password: vivr.env('AUTH_PASSWORD'),
+export default flow({ name: 'login', description: 'Authenticate and set bearer token', cache: true }, async (river) => {
+  const res = await river.post<{ token: string }>('/auth/login', {
+    email: river.env('AUTH_EMAIL'),
+    password: river.env('AUTH_PASSWORD'),
   })
 
-  vivr.setHeader('Authorization', `Bearer ${res.data.token}`)
-  vivr.store('login.token', res.data.token)
-  vivr.log('Authenticated')
+  river.setHeader('Authorization', `Bearer ${res.data.token}`)
+  river.store('login.token', res.data.token)
+  river.log('Authenticated')
 })
 ```
 
 ### flows/search-stories.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 import login from './login'
 
-export default flow('search-stories', async (vivr) => {
-  await vivr.run(login)
+export default flow('search-stories', async (river) => {
+  await river.run(login)
 
-  const res = await vivr.post<{ records: any[]; cursor?: string }>('/search/query', {
+  const res = await river.post<{ records: any[]; cursor?: string }>('/search/query', {
     q: 'grace',
     collections: ['faith_stories'],
     limit: 10,
@@ -648,60 +648,60 @@ export default flow('search-stories', async (vivr) => {
     },
   })
 
-  vivr.store('search.results', res.data.records)
-  vivr.store('search.cursor', res.data.cursor)
-  vivr.log(`Found ${res.data.records.length} stories`)
+  river.store('search.results', res.data.records)
+  river.store('search.cursor', res.data.cursor)
+  river.log(`Found ${res.data.records.length} stories`)
 })
 ```
 
 ### flows/get-story.ts
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 import searchStories from './search-stories'
 
-export default flow('get-story', async (vivr) => {
-  await vivr.run(searchStories)  // runs login (cached) → search
+export default flow('get-story', async (river) => {
+  await river.run(searchStories)  // runs login (cached) → search
 
-  const results = vivr.recall<any[]>('search.results')
+  const results = river.recall<any[]>('search.results')
   if (!results?.length) {
-    vivr.log('No results to fetch')
+    river.log('No results to fetch')
     return
   }
 
   const first = results[0]
-  const res = await vivr.get(`/search/faith_stories/${first.id}`)
+  const res = await river.get(`/search/faith_stories/${first.id}`)
 
-  vivr.store('story.detail', res.data)
-  vivr.save('story.lastFetched', { id: first.id, at: new Date().toISOString() })
-  vivr.log(`Fetched: ${res.data.title ?? first.id}`)
+  river.store('story.detail', res.data)
+  river.save('story.lastFetched', { id: first.id, at: new Date().toISOString() })
+  river.log(`Fetched: ${res.data.title ?? first.id}`)
 })
 ```
 
 ### flows/setup-dev.ts (pipeline)
 
 ```typescript
-import { flow } from 'vivr'
+import { flow } from 'river'
 import login from './login'
 import searchStories from './search-stories'
 import getStory from './get-story'
 
-export default flow({ name: 'setup-dev', description: 'Bootstrap dev environment' }, async (vivr) => {
-  await vivr.run(login)
-  await vivr.run(searchStories)
-  await vivr.run(getStory)
+export default flow({ name: 'setup-dev', description: 'Bootstrap dev environment' }, async (river) => {
+  await river.run(login)
+  await river.run(searchStories)
+  await river.run(getStory)
 
-  vivr.save('setup.lastRun', new Date().toISOString())
-  vivr.log('Dev environment ready')
+  river.save('setup.lastRun', new Date().toISOString())
+  river.log('Dev environment ready')
 })
 ```
 
 ### Running it
 
 ```
-$ vivr run setup-dev --env dev
+$ river run setup-dev --env dev
 
-  vivr ▸ setup-dev (dev)
+  river ▸ setup-dev (dev)
 
   ✓ login            201   52ms
   ✓ search-stories   200  187ms   10 records
@@ -748,12 +748,12 @@ $ vivr run setup-dev --env dev
 
 ```jsonc
 {
-  "name": "vivr",
+  "name": "river",
   "version": "0.1.0",
   "description": "API workflow orchestration CLI for developers",
   "type": "module",
   "bin": {
-    "vivr": "./dist/bin/vivr.mjs"
+    "river": "./dist/bin/river.mjs"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
@@ -773,13 +773,13 @@ $ vivr run setup-dev --env dev
 
 ### Dual exports
 
-- **SDK** (`import { flow, defineConfig } from 'vivr'`): used in user's flow files and config
-- **CLI** (`npx vivr run ...`): the `bin` entry
+- **SDK** (`import { flow, defineConfig } from 'river'`): used in user's flow files and config
+- **CLI** (`npx river run ...`): the `bin` entry
 
 ### Build command
 
 ```bash
-tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
+tsup src/index.ts src/bin/river.ts --format esm --dts --clean
 ```
 
 ---
@@ -787,7 +787,7 @@ tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
 ## 10. Implementation Phases
 
 ### Phase 1 — Core MVP
-> Goal: `vivr run health-check` works end-to-end
+> Goal: `river run health-check` works end-to-end
 
 - [ ] Repo init (package.json, tsconfig, tsup config)
 - [ ] `src/core/flow.ts` — `flow()` factory, `Flow` type, `isFlow()`
@@ -795,38 +795,38 @@ tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
 - [ ] `src/http/types.ts` — `VivResponse`, `RequestOptions`
 - [ ] `src/state/memory-store.ts` — `store()` / `recall()`
 - [ ] `src/config/types.ts` — `VivConfig`, `EnvironmentConfig`
-- [ ] `src/config/loader.ts` — load `vivr.config.ts`
+- [ ] `src/config/loader.ts` — load `river.config.ts`
 - [ ] `src/config/env-loader.ts` — load `.env` + `environments/<env>.env`
-- [ ] `src/core/context.ts` — `VivContext` wiring everything together
+- [ ] `src/core/context.ts` — `RiverContext` wiring everything together
 - [ ] `src/core/runner.ts` — `FlowRunner` lifecycle (config → init → load → execute → cleanup)
 - [ ] `src/core/loader.ts` — dynamic import (jiti/Bun)
 - [ ] `src/core/errors.ts` — error classes
-- [ ] `src/cli/commands/run.ts` — `vivr run <flow>` command
+- [ ] `src/cli/commands/run.ts` — `river run <flow>` command
 - [ ] `src/cli/index.ts` — CLI entry with citty
 - [ ] `src/cli/output/minimal.ts` — default reporter
 - [ ] `src/index.ts` — public SDK exports
-- [ ] `bin/vivr.ts` — hashbang entry
+- [ ] `bin/river.ts` — hashbang entry
 
 ### Phase 2 — Init + DX
-> Goal: `vivr init my-project && cd my-project && vivr run health-check` works
+> Goal: `river init my-project && cd my-project && river run health-check` works
 
 - [ ] `src/init/scaffolder.ts` — project scaffolding logic
 - [ ] `src/init/templates/*` — all template files
-- [ ] `src/cli/commands/init.ts` — `vivr init` with prompts
-- [ ] `src/cli/commands/list.ts` — `vivr list`
+- [ ] `src/cli/commands/init.ts` — `river init` with prompts
+- [ ] `src/cli/commands/list.ts` — `river list`
 - [ ] `src/cli/output/verbose.ts` — `--verbose` reporter
 - [ ] `src/cli/output/json.ts` — `--json` reporter
 - [ ] Error formatting (pretty VivHttpError display)
 
 ### Phase 3 — State + Advanced
-> Goal: `vivr.save()` / `vivr.load()` work, flow caching works
+> Goal: `river.save()` / `river.load()` work, flow caching works
 
 - [ ] `src/state/persistent-store.ts` — JSON file persistence
 - [ ] Flow cache implementation
 - [ ] Declarative flow support (parse DeclarativeFlow → FlowFn)
 - [ ] Optional runtime validation (`schema` in RequestOptions)
 - [ ] `--dry-run` flag
-- [ ] `vivr state list/get/clear` commands
+- [ ] `river state list/get/clear` commands
 
 ### Phase 4 — Polish & Ship
 > Goal: `npm publish` ready
@@ -843,7 +843,7 @@ tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
 
 These can be decided during implementation:
 
-1. **Config file name**: `vivr.config.ts` vs `viv.config.ts`? (Leaning `vivr.config.ts` to match package name)
-2. **Step counting**: Should `vivr.run(otherFlow)` count as one step in the reporter, or should it expand to show the sub-flow's steps?
+1. **Config file name**: `river.config.ts` vs `river.config.ts`? (Leaning `river.config.ts` to match package name)
+2. **Step counting**: Should `river.run(otherFlow)` count as one step in the reporter, or should it expand to show the sub-flow's steps?
 3. **Declarative flow JSONPath**: Ship `jsonpath-plus` as optional dep, or implement basic dot-path extraction (`$.data.token` → `res.data.token`)?
-4. **Max recursion depth**: Should `vivr.run()` have a depth limit to prevent accidental infinite loops?
+4. **Max recursion depth**: Should `river.run()` have a depth limit to prevent accidental infinite loops?

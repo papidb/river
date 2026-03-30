@@ -1,6 +1,6 @@
-import type { VivContext } from './context.js'
+import type { RiverContext } from './context.js'
 
-export type FlowFn = (vivr: VivContext) => Promise<void>
+export type FlowFn = (river: RiverContext) => Promise<void>
 
 export interface FlowOptions {
   name: string
@@ -13,7 +13,7 @@ export interface Flow {
   readonly name: string
   readonly options: Required<FlowOptions>
   readonly execute: FlowFn
-  readonly __brand: 'vivr-flow'
+  readonly __brand: 'river-flow'
 }
 
 export interface DeclarativeStep {
@@ -56,7 +56,7 @@ export function flow(nameOrOptions: string | FlowOptions, fn: FlowFn): Flow {
     name: options.name,
     options,
     execute: fn,
-    __brand: 'vivr-flow',
+    __brand: 'river-flow',
   }
 }
 
@@ -67,7 +67,7 @@ export function isFlow(value: unknown): value is Flow {
 
   const candidate = value as Partial<Flow>
   return (
-    candidate.__brand === 'vivr-flow' &&
+    candidate.__brand === 'river-flow' &&
     typeof candidate.name === 'string' &&
     typeof candidate.execute === 'function' &&
     typeof candidate.options === 'object' &&

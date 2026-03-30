@@ -1,6 +1,6 @@
 import { flow } from '../../../src/index.js'
 
-export default flow('health-check', async (vivr) => {
-  const res = await vivr.http.get('/users')
-  vivr.log(`API is up — ${res.data.length} users available`)
+export default flow('health-check', async (river) => {
+  const res = await river.http.get('/users')
+  river.log(`API is up — ${res.data.length} users available`)
 })

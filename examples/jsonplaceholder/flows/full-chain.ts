@@ -11,18 +11,18 @@ interface Comment {
   body: string
 }
 
-export default flow({ name: 'full-chain', description: 'Fetch users → posts → comments → create post' }, async (vivr) => {
-  await vivr.run(getUsers)
-  await vivr.run(getUserPosts)
+export default flow({ name: 'full-chain', description: 'Fetch users → posts → comments → create post' }, async (river) => {
+  await river.run(getUsers)
+  await river.run(getUserPosts)
 
-  const firstPost = vivr.state.get<{ id: number; title: string }>('posts.first')
+  const firstPost = river.state.get<{ id: number; title: string }>('posts.first')
   if (firstPost) {
-    const res = await vivr.http.get<Comment[]>(`/posts/${firstPost.id}/comments`)
-    vivr.state.set('comments.list', res.data)
-    vivr.log(`Post "${firstPost.title}" has ${res.data.length} comments`)
+    const res = await river.http.get<Comment[]>(`/posts/${firstPost.id}/comments`)
+    river.state.set('comments.list', res.data)
+    river.log(`Post "${firstPost.title}" has ${res.data.length} comments`)
   }
 
-  await vivr.run(createPost)
+  await river.run(createPost)
 
-  vivr.log('Full chain complete')
+  river.log('Full chain complete')
 })

@@ -7,7 +7,7 @@ import { VIVR_VERSION } from './version.js'
 
 export const cli = defineCommand({
   meta: {
-    name: 'rivr',
+    name: 'river',
     description: 'API workflow orchestration CLI',
     version: VIVR_VERSION,
   },

@@ -7,7 +7,7 @@ export class MinimalReporter implements Reporter {
   #success = true
 
   onFlowStart(flowName: string, environment: string): void {
-    consola.log(`rivr ▸ ${flowName} (${environment})`)
+    consola.log(`river ▸ ${flowName} (${environment})`)
   }
 
   onStepComplete(event: StepEvent): void {

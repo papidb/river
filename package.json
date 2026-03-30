@@ -1,10 +1,10 @@
 {
-  "name": "@papidb/rivr",
+  "name": "@papidb/river",
   "version": "0.1.0",
   "description": "API workflow orchestration CLI for developers",
   "type": "module",
   "bin": {
-    "rivr": "./dist/bin/vivr.mjs"
+    "river": "./dist/bin/river.mjs"
   },
   "main": "./dist/src/index.mjs",
   "module": "./dist/src/index.mjs",
@@ -19,7 +19,7 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "tsx bin/vivr.ts",
+    "dev": "tsx bin/river.ts",
     "build": "tsup && tsc -p tsconfig.build.json",
     "prepack": "pnpm build",
     "pack:dry-run": "npm pack --dry-run",

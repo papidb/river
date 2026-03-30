@@ -3,18 +3,18 @@ import getUsers from './get-users.js'
 
 export default flow(
   { name: 'full-chain-mid-failure', description: 'Succeed on the first flow, fail in the middle, and stop before later work' },
-  async (vivr) => {
-    await vivr.run(getUsers)
+  async (river) => {
+    await river.run(getUsers)
 
-    const firstUser = vivr.state.get<{ id: number; name: string }>('users.first')
+    const firstUser = river.state.get<{ id: number; name: string }>('users.first')
     if (firstUser) {
-      vivr.log(`Loaded user: ${firstUser.name}`)
+      river.log(`Loaded user: ${firstUser.name}`)
     }
 
-    await vivr.http.get('https://jsonplaceholder.typicode.com/not-a-real-posts-endpoint')
+    await river.http.get('https://jsonplaceholder.typicode.com/not-a-real-posts-endpoint')
 
-    vivr.log('This line should never run')
-    await vivr.http.post('/posts', {
+    river.log('This line should never run')
+    await river.http.post('/posts', {
       title: 'Should not be created',
       body: 'If you see this request, stop-on-failure is broken',
       userId: firstUser?.id ?? 1,
