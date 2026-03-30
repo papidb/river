@@ -588,7 +588,7 @@ Discovery: globs `flowsDir/**/*.ts`, imports each, reads `name` and `description
 
 ---
 
-## 7. Example Flows (Yohanna Search API)
+## 7. Example Flows (JSONPlaceholder Public API)
 
 ### vivr.config.ts
 
@@ -879,7 +879,7 @@ tsup src/index.ts src/bin/vivr.ts --format esm --dts --clean
 | 1 | README.md with getting started guide | Manual review | Has: install, init, write first flow, run, env setup sections. All commands are copy-pasteable. |
 | 2 | tsup build config finalized | `tsup && ls dist/` | `dist/` contains `index.mjs`, `index.d.ts`, `bin/vivr.mjs`. No errors. |
 | 3 | npm publish setup | `npm pack --dry-run` | Package includes: `dist/`, `README.md`. Excludes: `src/`, `node_modules/`, tests. Size < 100KB. |
-| 4 | Example Yohanna flows | `ls examples/yohanna-search/flows/` | Contains: `health-check.ts`, `login.ts`, `search-stories.ts`, `get-story.ts`, `setup-dev.ts` |
+| 4 | Public example flows | `ls examples/jsonplaceholder/flows/` | Contains: `health-check.ts`, `get-users.ts`, `get-user-posts.ts`, `create-post.ts`, `full-chain.ts` |
 | 5 | CI (GitHub Actions) | Push to repo, check Actions tab | Runs: `tsc --noEmit`, `vitest run`, `tsup`. All green. |
 
 **Phase 4 gate**: `npm pack`, install from tarball in a fresh directory, `npx vivr init test && cd test && npm install && npx vivr run health-check` works end-to-end.

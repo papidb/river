@@ -1,7 +1,7 @@
 # Task Plan: Build viv — API Workflow Orchestration CLI
 
 ## Goal
-Design and build "viv", a TypeScript CLI tool that lets developers define, compose, and run API workflow flows against any API. Ship an MVP that can run flows against the Yohanna search API as proof of concept.
+Design and build "vivr", a TypeScript CLI tool that lets developers define, compose, and run API workflow flows against any API. Ship an MVP with public example flows that anyone can run as proof of concept.
 
 ## Phases
 - [x] Phase 1: Requirements gathering — clarify concept with user
@@ -10,8 +10,8 @@ Design and build "viv", a TypeScript CLI tool that lets developers define, compo
 - [x] Phase 4: Core implementation — flow(), VivContext, FlowRunner, HTTP client  ✅ Gate passed
 - [x] Phase 5: CLI implementation — vivr run command  ✅ (init/list/state in Phase 2 of arch)
 - [ ] Phase 6: Init scaffolding — templates, project generation
-- [ ] Phase 7: Example flows — Yohanna search API as first use case
-- [ ] Phase 8: Polish — error handling, output formatting, docs
+- [x] Phase 7: Example flows — public JSONPlaceholder examples  ✅ Verified end-to-end
+- [x] Phase 8: Polish — error handling, output formatting, docs  ✅ Verified
 - [ ] Phase 9: Build & publish setup — tsup/unbuild, npm config, dual runtime
 
 ## Key Decisions (Locked)
@@ -61,4 +61,4 @@ Design and build "viv", a TypeScript CLI tool that lets developers define, compo
 - (none yet)
 
 ## Status
-**Phase 4+5 complete** — Core MVP implemented. 17 files, `tsc --noEmit` clean, gate test passes: `vivr run health-check` → `✓ health-check  200  2527ms`. Ready for Phase 6: Init scaffolding.
+**Phase 8 complete** — CLI failure output is formatted, minimal reporting is cleaned up, README is written, and verification passed (`tsc --noEmit`, LSP diagnostics, `full-chain`, and forced HTTP failure output). Phase 6 remains intentionally deferred. Next sensible step is Phase 9 build/publish setup or selected advanced runtime features.
