@@ -17,7 +17,9 @@
   },
   "scripts": {
     "dev": "tsx bin/vivr.ts",
-    "build": "tsup",
+    "build": "tsup && tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "pack:dry-run": "npm pack --dry-run",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -12,7 +12,7 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 - [x] Phase 6: Init scaffolding — templates, project generation  ✅ Verified end-to-end
 - [x] Phase 7: Example flows — public JSONPlaceholder examples  ✅ Verified end-to-end
 - [x] Phase 8: Polish — error handling, output formatting, docs  ✅ Verified
-- [ ] Phase 9: Build & publish setup — tsup/unbuild, npm config, dual runtime
+- [x] Phase 9: Build & publish setup — package build, tarball verification, fresh install verification  ✅ Verified
 
 ## Key Decisions (Locked)
 
@@ -58,7 +58,8 @@ Design and build "vivr", a TypeScript CLI tool that lets developers define, comp
 6. ~~npm name~~ → `vivr` (available). CLI command: `vivr`.
 
 ## Errors Encountered
-- (none yet)
+- `tsup` DTS build tripped over a TypeScript 6 deprecation (`baseUrl`) despite `tsc --noEmit` being clean. Resolved by splitting JS bundling (`tsup`) from declaration generation (`tsc -p tsconfig.build.json`).
+- Local scaffold verification initially failed because the generated project depended on a local `file:` package before `dist/` existed. Resolved by making `vivr init --local` build the current package first.
 
 ## Status
-**Phases 6 and 8 complete** — `vivr init` now scaffolds a minimal health-check project, supports `--git-exclude`, and works end-to-end (`init` → install → `vivr run health-check`). CLI failure output and docs are polished, and verification passed (`pnpm build`, `tsc --noEmit`, LSP diagnostics, scaffolded project run, `full-chain`, and forced failure examples). Next sensible step is Phase 9 build/publish setup or selected advanced runtime features.
+**Phases 6, 8, and 9 complete** — `vivr` now builds, packs, installs, scaffolds, and runs successfully from a real tarball. Verification passed across `pnpm build`, `npm pack --dry-run`, fresh consumer install, packaged CLI execution, scaffolded-project run, `tsc --noEmit`, LSP diagnostics, success examples, and failure examples. One non-blocking caution from final review: `prepack` currently depends on `pnpm` being available in the publish environment. Next sensible step is `vivr list`, persistent store, or verbose/JSON output.
