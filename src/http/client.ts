@@ -1,5 +1,5 @@
-import { VivHttpError } from '../core/errors.js'
-import type { RequestOptions, VivResponse } from './types.js'
+import { RiverHttpError } from '../core/errors.js'
+import type { RequestOptions, RiverResponse } from './types.js'
 
 export interface HttpStepResult {
   flowName: string
@@ -95,23 +95,23 @@ export class HttpClient {
     this.#onStepComplete = options.onStepComplete
   }
 
-  async get<T = unknown>(url: string, options?: RequestOptions): Promise<VivResponse<T>> {
+  async get<T = unknown>(url: string, options?: RequestOptions): Promise<RiverResponse<T>> {
     return this.request<T>('GET', url, undefined, options)
   }
 
-  async post<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>> {
+  async post<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>> {
     return this.request<T>('POST', url, body, options)
   }
 
-  async put<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>> {
+  async put<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>> {
     return this.request<T>('PUT', url, body, options)
   }
 
-  async delete<T = unknown>(url: string, options?: RequestOptions): Promise<VivResponse<T>> {
+  async delete<T = unknown>(url: string, options?: RequestOptions): Promise<RiverResponse<T>> {
     return this.request<T>('DELETE', url, undefined, options)
   }
 
-  async patch<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>> {
+  async patch<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>> {
     return this.request<T>('PATCH', url, body, options)
   }
 
@@ -120,7 +120,7 @@ export class HttpClient {
     url: string,
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<VivResponse<T>> {
+  ): Promise<RiverResponse<T>> {
     const fullUrl = resolveUrl(url, this.#baseUrl)
     const sessionHeaders = this.#getSessionHeaders?.() ?? {}
     const requestHeaders = options?.headers ?? {}
@@ -168,10 +168,10 @@ export class HttpClient {
       })
 
       if (!response.ok) {
-        throw new VivHttpError(response.status, response.statusText, fullUrl, method, parsedData, duration)
+        throw new RiverHttpError(response.status, response.statusText, fullUrl, method, parsedData, duration)
       }
 
-      const result: VivResponse<T> = {
+      const result: RiverResponse<T> = {
         status: response.status,
         statusText: response.statusText,
         headers: buildHeaders(response),

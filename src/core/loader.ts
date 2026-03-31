@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createJiti } from 'jiti'
-import { VivConfigError } from './errors.js'
+import { RiverConfigError } from './errors.js'
 import { isDeclarativeFlow, isFlow, type DeclarativeFlow, type Flow } from './flow.js'
 
 async function importTsModule(filePath: string): Promise<unknown> {
@@ -26,7 +26,7 @@ export async function loadFlowFile(filePath: string): Promise<Flow | Declarative
     return exported
   }
 
-  throw new VivConfigError(`Flow file ${filePath} must export a Flow or DeclarativeFlow as default`)
+  throw new RiverConfigError(`Flow file ${filePath} must export a Flow or DeclarativeFlow as default`)
 }
 
 export async function loadFlowByName(projectRoot: string, flowsDir: string, flowName: string): Promise<Flow | DeclarativeFlow> {

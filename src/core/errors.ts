@@ -1,14 +1,14 @@
-export class VivError extends Error {
+export class RiverError extends Error {
   readonly code: string
 
   constructor(message: string, code: string) {
     super(message)
-    this.name = 'VivError'
+    this.name = 'RiverError'
     this.code = code
   }
 }
 
-export class VivHttpError extends VivError {
+export class RiverHttpError extends RiverError {
   readonly status: number
   readonly statusText: string
   readonly url: string
@@ -25,7 +25,7 @@ export class VivHttpError extends VivError {
     duration: number,
   ) {
     super(`${method} ${url} → ${status} ${statusText}`, 'HTTP_ERROR')
-    this.name = 'VivHttpError'
+    this.name = 'RiverHttpError'
     this.status = status
     this.statusText = statusText
     this.url = url
@@ -35,21 +35,21 @@ export class VivHttpError extends VivError {
   }
 }
 
-export class VivFlowError extends VivError {
+export class RiverFlowError extends RiverError {
   readonly flowName: string
   readonly cause: Error
 
   constructor(flowName: string, cause: Error) {
     super(`Flow "${flowName}" failed: ${cause.message}`, 'FLOW_ERROR')
-    this.name = 'VivFlowError'
+    this.name = 'RiverFlowError'
     this.flowName = flowName
     this.cause = cause
   }
 }
 
-export class VivConfigError extends VivError {
+export class RiverConfigError extends RiverError {
   constructor(message: string) {
     super(message, 'CONFIG_ERROR')
-    this.name = 'VivConfigError'
+    this.name = 'RiverConfigError'
   }
 }

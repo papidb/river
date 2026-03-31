@@ -3,13 +3,13 @@ import { consola } from 'consola'
 import { initCommand } from './commands/init.js'
 import { runCommand } from './commands/run.js'
 import { formatCliError } from './format-error.js'
-import { VIVR_VERSION } from './version.js'
+import { RIVER_VERSION } from './version.js'
 
 export const cli = defineCommand({
   meta: {
     name: 'river',
     description: 'API workflow orchestration CLI',
-    version: VIVR_VERSION,
+    version: RIVER_VERSION,
   },
   subCommands: {
     init: initCommand,
@@ -25,7 +25,7 @@ export async function runCli(rawArgs = process.argv.slice(2)): Promise<void> {
     }
 
     if (rawArgs.length === 1 && rawArgs[0] === '--version') {
-      consola.log(VIVR_VERSION)
+      consola.log(RIVER_VERSION)
       return
     }
 

@@ -1,7 +1,7 @@
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { consola } from 'consola'
-import { VivConfigError } from '../core/errors.js'
+import { RiverConfigError } from '../core/errors.js'
 import { configTemplate } from './templates/config.js'
 import { envExampleTemplate } from './templates/env.js'
 import { healthCheckFlowTemplate } from './templates/flow.js'
@@ -65,7 +65,7 @@ async function appendToGitExclude(targetDir: string): Promise<void> {
 
   const relativeTarget = relative(gitRoot, targetDir).replaceAll('\\', '/')
   if (!relativeTarget || relativeTarget === '.') {
-    throw new VivConfigError('Refusing to add the repository root itself to .git/info/exclude')
+    throw new RiverConfigError('Refusing to add the repository root itself to .git/info/exclude')
   }
 
   const excludePath = resolve(gitRoot, '.git', 'info', 'exclude')
@@ -85,15 +85,15 @@ export async function scaffoldProject(options: ScaffoldProjectOptions): Promise<
     if (targetStats.isDirectory()) {
       const configPath = resolve(targetDir, 'river.config.ts')
       if (await pathExists(configPath)) {
-        throw new VivConfigError(`Target directory already contains a river project: ${targetDir}`)
+        throw new RiverConfigError(`Target directory already contains a river project: ${targetDir}`)
       }
 
       const dirEntries = await readdir(targetDir)
       if (dirEntries.length > 0) {
-        throw new VivConfigError(`Target directory is not empty: ${targetDir}`)
+        throw new RiverConfigError(`Target directory is not empty: ${targetDir}`)
       }
     } else {
-      throw new VivConfigError(`Target path exists and is not a directory: ${targetDir}`)
+      throw new RiverConfigError(`Target path exists and is not a directory: ${targetDir}`)
     }
   }
 

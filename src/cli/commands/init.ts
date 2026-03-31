@@ -8,7 +8,7 @@ import { promisify } from 'node:util'
 import { defineCommand } from 'citty'
 import { consola } from 'consola'
 import { scaffoldProject, type PackageManager } from '../../init/scaffolder.js'
-import { VIVR_VERSION } from '../version.js'
+import { RIVER_VERSION } from '../version.js'
 
 const DEFAULT_PROJECT_NAME = 'river-project'
 const DEFAULT_BASE_URL = 'http://localhost:3000'
@@ -88,7 +88,7 @@ function resolveDependencySpec(useLocal: boolean): string {
     return `file:${packageRoot}`
   }
 
-  return `^${VIVR_VERSION}`
+  return `^${RIVER_VERSION}`
 }
 
 async function ensureLocalBuild(): Promise<void> {

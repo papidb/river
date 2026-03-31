@@ -56,11 +56,11 @@ $ river run login --env dev
 │   │   ├── context.ts           # RiverContext class — the `river` object
 │   │   ├── runner.ts            # FlowRunner — lifecycle, execution, error handling
 │   │   ├── loader.ts            # Dynamic import of .ts flow files (jiti/Bun)
-│   │   └── errors.ts            # VivHttpError, VivFlowError, VivConfigError
+│   │   └── errors.ts            # RiverHttpError, RiverFlowError, RiverConfigError
 │   │
 │   ├── http/
 │   │   ├── client.ts            # HTTP client — fetch wrapper, URL resolution, timing
-│   │   └── types.ts             # VivResponse, RequestOptions
+│   │   └── types.ts             # RiverResponse, RequestOptions
 │   │
 │   ├── state/
 │   │   ├── memory-store.ts      # In-memory Map<string, unknown> (current run)
@@ -70,7 +70,7 @@ $ river run login --env dev
 │   ├── config/
 │   │   ├── loader.ts            # Find and import river.config.ts
 │   │   ├── env-loader.ts        # Load .env + environments/<env>.env
-│   │   └── types.ts             # VivConfig, EnvironmentConfig
+│   │   └── types.ts             # RiverConfig, EnvironmentConfig
 │   │
 │   └── init/
 │       ├── scaffolder.ts        # mkdir, write files, install deps
@@ -227,11 +227,11 @@ interface RiverContext {
   // Auto-resolves base URL from active environment
   // Pass full URL (https://...) to bypass env resolution
   readonly http: {
-    get<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-    post<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-    put<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-    delete<T = any>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-    patch<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+    get<T = any>(url: string, options?: RequestOptions): Promise<RiverResponse<T>>
+    post<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
+    put<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
+    delete<T = any>(url: string, options?: RequestOptions): Promise<RiverResponse<T>>
+    patch<T = any>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
   }
 
   // ── Session Headers (river.headers.*) ──
@@ -286,7 +286,7 @@ interface RiverContext {
 ### 4.3 HTTP Types
 
 ```typescript
-interface VivResponse<T = any> {
+interface RiverResponse<T = any> {
   status: number
   statusText: string
   headers: Record<string, string>
@@ -307,7 +307,7 @@ interface RequestOptions {
 ### 4.4 Config Types
 
 ```typescript
-interface VivConfig {
+interface RiverConfig {
   name?: string
   version?: string
   environments: Record<string, EnvironmentConfig>
@@ -325,17 +325,17 @@ interface EnvironmentConfig {
   vars?: Record<string, string>           // Available via river.env() alongside process.env
 }
 
-function defineConfig(config: VivConfig): VivConfig  // Identity fn for type inference
+function defineConfig(config: RiverConfig): RiverConfig  // Identity fn for type inference
 ```
 
 ### 4.5 Errors
 
 ```typescript
-class VivError extends Error {
+class RiverError extends Error {
   constructor(message: string, public code: string) { super(message) }
 }
 
-class VivHttpError extends VivError {
+class RiverHttpError extends RiverError {
   constructor(
     public status: number,
     public statusText: string,
@@ -348,7 +348,7 @@ class VivHttpError extends VivError {
   }
 }
 
-class VivFlowError extends VivError {
+class RiverFlowError extends RiverError {
   constructor(
     public flowName: string,
     public cause: Error,
@@ -357,7 +357,7 @@ class VivFlowError extends VivError {
   }
 }
 
-class VivConfigError extends VivError {
+class RiverConfigError extends RiverError {
   constructor(message: string) {
     super(message, 'CONFIG_ERROR')
   }
@@ -413,8 +413,8 @@ river run <flow-name> --env <env>
 │  │   6. Stop timer, calculate size                      │
 │  │   7. Reporter: log step result                       │
 │  │   8. If schema → validate, throw on fail             │
-│  │   9. If !ok (non-2xx) → throw VivHttpError           │
-│  │   10. Return VivResponse<T>                          │
+│  │   9. If !ok (non-2xx) → throw RiverHttpError           │
+│  │   10. Return RiverResponse<T>                          │
 │  │                                                      │
 │  ├─ On river.run(otherFlow):                             │
 │  │   1. Check FlowCache for otherFlow.name              │
@@ -428,7 +428,7 @@ river run <flow-name> --env <env>
 │  ├─ On river.env: check env vars + config vars           │
 │  ├─ On river.log: forward to Reporter                    │
 │  │                                                      │
-│  └─ On error: catch → wrap in VivFlowError → rethrow    │
+│  └─ On error: catch → wrap in RiverFlowError → rethrow    │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼
@@ -486,7 +486,7 @@ class FlowCache {
 `river.env('KEY')` checks in order:
 1. `process.env.KEY` (from .env and environments/<env>.env)
 2. `config.environments[activeEnv].vars.KEY`
-3. If neither → throw `VivConfigError('Environment variable "KEY" not found')`
+3. If neither → throw `RiverConfigError('Environment variable "KEY" not found')`
 
 With fallback: `river.env('KEY', 'default')` returns `'default'` instead of throwing.
 
@@ -510,7 +510,7 @@ async function loadFlowFile(filePath: string): Promise<Flow | DeclarativeFlow> {
   const exported = mod.default ?? mod
   if (isFlow(exported)) return exported
   if (isDeclarativeFlow(exported)) return exported
-  throw new VivConfigError(`Flow file ${filePath} must export a Flow or DeclarativeFlow as default`)
+  throw new RiverConfigError(`Flow file ${filePath} must export a Flow or DeclarativeFlow as default`)
 }
 ```
 
@@ -818,20 +818,20 @@ tsup src/index.ts src/bin/river.ts --format esm --dts --clean
 |---|------|-------------|-------------------|
 | 1 | Repo init (package.json, tsconfig, tsup config) | `tsc --noEmit` | Exit 0, no errors |
 | 2 | `src/core/flow.ts` — `flow()` factory, `Flow` type, `isFlow()` | `vitest run src/core/flow.test.ts` | `flow('test', fn)` returns `Flow` with `__brand: 'river-flow'`; `isFlow()` returns true for flows, false for plain objects |
-| 3 | `src/http/types.ts` — `VivResponse`, `RequestOptions` | `tsc --noEmit` | Types compile, no errors |
-| 4 | `src/http/client.ts` — fetch wrapper with URL resolution, timing, headers | `vitest run src/http/client.test.ts` | (a) Relative URL `/foo` + baseUrl `http://x.com` → `http://x.com/foo`; (b) Absolute URL `https://y.com/bar` bypasses baseUrl; (c) Headers merge in correct order; (d) Non-2xx throws `VivHttpError` with status, url, method; (e) Duration > 0ms |
+| 3 | `src/http/types.ts` — `RiverResponse`, `RequestOptions` | `tsc --noEmit` | Types compile, no errors |
+| 4 | `src/http/client.ts` — fetch wrapper with URL resolution, timing, headers | `vitest run src/http/client.test.ts` | (a) Relative URL `/foo` + baseUrl `http://x.com` → `http://x.com/foo`; (b) Absolute URL `https://y.com/bar` bypasses baseUrl; (c) Headers merge in correct order; (d) Non-2xx throws `RiverHttpError` with status, url, method; (e) Duration > 0ms |
 | 5 | `src/state/memory-store.ts` — `store()` / `recall()` | `vitest run src/state/memory-store.test.ts` | `store('k', 'v')` then `recall('k')` returns `'v'`; `recall('missing')` returns `undefined` |
-| 6 | `src/config/types.ts` — `VivConfig`, `EnvironmentConfig` | `tsc --noEmit` | Types compile |
-| 7 | `src/config/loader.ts` — load `river.config.ts` | `vitest run src/config/loader.test.ts` | Given a temp dir with a `river.config.ts`, loader returns parsed `VivConfig` object with correct `environments` |
+| 6 | `src/config/types.ts` — `RiverConfig`, `EnvironmentConfig` | `tsc --noEmit` | Types compile |
+| 7 | `src/config/loader.ts` — load `river.config.ts` | `vitest run src/config/loader.test.ts` | Given a temp dir with a `river.config.ts`, loader returns parsed `RiverConfig` object with correct `environments` |
 | 8 | `src/config/env-loader.ts` — load `.env` + `environments/<env>.env` | `vitest run src/config/env-loader.test.ts` | Given `.env` with `A=1` and `environments/dev.env` with `B=2`, loading `dev` env yields both `A` and `B` in `process.env` |
-| 9 | `src/core/errors.ts` — error classes | `tsc --noEmit` | All error classes extend `VivError`, `VivHttpError` has `status`, `url`, `method` properties |
+| 9 | `src/core/errors.ts` — error classes | `tsc --noEmit` | All error classes extend `RiverError`, `RiverHttpError` has `status`, `url`, `method` properties |
 | 10 | `src/core/context.ts` — `RiverContext` wiring everything together | `vitest run src/core/context.test.ts` | Context exposes all methods: get/post/put/delete/patch, store/recall, env, setHeader/removeHeader, log, run. Each delegates to the correct underlying module. |
-| 11 | `src/core/loader.ts` — dynamic import (jiti/Bun) | `vitest run src/core/loader.test.ts` | Given a `.ts` file exporting `flow('test', fn)`, loader returns the `Flow` object. Given a non-flow export, throws `VivConfigError`. |
-| 12 | `src/core/runner.ts` — `FlowRunner` lifecycle | `vitest run src/core/runner.test.ts` | (a) Runs a flow that calls `river.store()` — value retrievable after; (b) Runner catches errors and wraps in `VivFlowError`; (c) Runner calls reporter for each HTTP step |
+| 11 | `src/core/loader.ts` — dynamic import (jiti/Bun) | `vitest run src/core/loader.test.ts` | Given a `.ts` file exporting `flow('test', fn)`, loader returns the `Flow` object. Given a non-flow export, throws `RiverConfigError`. |
+| 12 | `src/core/runner.ts` — `FlowRunner` lifecycle | `vitest run src/core/runner.test.ts` | (a) Runs a flow that calls `river.store()` — value retrievable after; (b) Runner catches errors and wraps in `RiverFlowError`; (c) Runner calls reporter for each HTTP step |
 | 13 | `src/cli/output/reporter.ts` + `minimal.ts` — default reporter | `vitest run src/cli/output/minimal.test.ts` | Reporter receives step events, `minimal` formats as `✓ name  status  duration` string |
 | 14 | `src/cli/commands/run.ts` — `river run <flow>` command | Manual: `bun run bin/river.ts run health-check --env dev` | Exits 0, prints minimal output with ✓ step line and summary |
 | 15 | `src/cli/index.ts` — CLI entry with citty | `bun run bin/river.ts --help` | Prints help with `run` subcommand listed |
-| 16 | `src/index.ts` — public SDK exports | `tsc --noEmit` | Exports: `flow`, `defineConfig`, `Flow`, `RiverContext`, `VivResponse`, `VivConfig` |
+| 16 | `src/index.ts` — public SDK exports | `tsc --noEmit` | Exports: `flow`, `defineConfig`, `Flow`, `RiverContext`, `RiverResponse`, `RiverConfig` |
 | 17 | `bin/river.ts` — hashbang entry | `node dist/bin/river.mjs --help` AND `bun run bin/river.ts --help` | Both print help text, exit 0 |
 
 **Phase 1 gate**: Create a temp project with `river.config.ts` pointing to `https://httpbin.org`, a `flows/health-check.ts` that does `river.get('/get')`, and run `river run health-check`. Must print `✓ health-check  200  <duration>` and exit 0.
@@ -849,7 +849,7 @@ tsup src/index.ts src/bin/river.ts --format esm --dts --clean
 | 4 | `src/cli/commands/list.ts` — `river list` | Manual: run in scaffolded project | Lists `health-check` flow with name. Exit 0. |
 | 5 | `src/cli/output/verbose.ts` — `--verbose` reporter | Manual: `river run health-check --verbose` | Shows request URL, method, headers, response body in addition to status line |
 | 6 | `src/cli/output/json.ts` — `--json` reporter | `river run health-check --json \| jq .` | Each line is valid JSON with keys: `flow`, `step`, `status`, `duration`, `url`, `method` |
-| 7 | Error formatting (pretty VivHttpError display) | Manual: create flow that hits a 404 | Prints formatted error: red step line, URL, status, response body excerpt. Exits 1. |
+| 7 | Error formatting (pretty RiverHttpError display) | Manual: create flow that hits a 404 | Prints formatted error: red step line, URL, status, response body excerpt. Exits 1. |
 
 **Phase 2 gate**: Run `river init test-proj`, `cd test-proj`, install deps, `river run health-check`. Must print `✓ health-check  200  <duration>` and exit 0. Then `river list` shows `health-check`.
 

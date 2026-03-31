@@ -2,8 +2,8 @@ import { access } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createJiti } from 'jiti'
-import { VivConfigError } from '../core/errors.js'
-import type { VivConfig } from './types.js'
+import { RiverConfigError } from '../core/errors.js'
+import type { RiverConfig } from './types.js'
 
 const CONFIG_FILE = 'river.config.ts'
 
@@ -32,10 +32,10 @@ export async function findConfigFile(startDir: string): Promise<string> {
     cursor = parent
   }
 
-  throw new VivConfigError(`Could not find ${CONFIG_FILE} (searched from ${startDir} upward)`)
+  throw new RiverConfigError(`Could not find ${CONFIG_FILE} (searched from ${startDir} upward)`)
 }
 
-export async function loadConfig(startDir: string): Promise<{ config: VivConfig; configPath: string; projectRoot: string }> {
+export async function loadConfig(startDir: string): Promise<{ config: RiverConfig; configPath: string; projectRoot: string }> {
   const configPath = await findConfigFile(startDir)
   const projectRoot = dirname(configPath)
 
@@ -44,14 +44,14 @@ export async function loadConfig(startDir: string): Promise<{ config: VivConfig;
     ? await import(pathToFileURL(configPath).href)
     : await createJiti(import.meta.url).import(configPath)
 
-  const config = (loaded.default ?? loaded) as VivConfig
+  const config = (loaded.default ?? loaded) as RiverConfig
 
   if (!config || typeof config !== 'object') {
-    throw new VivConfigError(`Invalid ${CONFIG_FILE}: expected object export`)
+    throw new RiverConfigError(`Invalid ${CONFIG_FILE}: expected object export`)
   }
 
   if (!config.environments || Object.keys(config.environments).length === 0) {
-    throw new VivConfigError('Config must define at least one environment')
+    throw new RiverConfigError('Config must define at least one environment')
   }
 
   return { config, configPath, projectRoot }

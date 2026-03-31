@@ -4,7 +4,7 @@ export interface EnvironmentConfig {
   vars?: Record<string, string>
 }
 
-export interface VivConfig {
+export interface RiverConfig {
   name?: string
   version?: string
   environments: Record<string, EnvironmentConfig>
@@ -16,6 +16,6 @@ export interface VivConfig {
   flowsDir?: string
 }
 
-export function defineConfig<T extends VivConfig>(config: T): T {
+export function defineConfig<T extends RiverConfig>(config: T): T {
   return config
 }

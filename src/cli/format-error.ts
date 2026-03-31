@@ -1,4 +1,4 @@
-import { VivConfigError, VivError, VivFlowError, VivHttpError } from '../core/errors.js'
+import { RiverConfigError, RiverError, RiverFlowError, RiverHttpError } from '../core/errors.js'
 
 function stringifyBody(value: unknown): string {
   if (typeof value === 'string') {
@@ -21,10 +21,10 @@ function truncate(value: string, maxLength = 500): string {
 }
 
 export function formatCliError(error: unknown): string {
-  if (error instanceof VivFlowError) {
+  if (error instanceof RiverFlowError) {
     const cause = error.cause
 
-    if (cause instanceof VivHttpError) {
+    if (cause instanceof RiverHttpError) {
       const body = truncate(stringifyBody(cause.responseBody))
       return [
         `Flow failed: ${error.flowName}`,
@@ -36,18 +36,18 @@ export function formatCliError(error: unknown): string {
         .join('\n')
     }
 
-    if (cause instanceof VivConfigError) {
+    if (cause instanceof RiverConfigError) {
       return [`Flow failed: ${error.flowName}`, cause.message].join('\n')
     }
 
-    if (cause instanceof VivError) {
+    if (cause instanceof RiverError) {
       return [`Flow failed: ${error.flowName}`, `[${cause.code}] ${cause.message}`].join('\n')
     }
 
     return [`Flow failed: ${error.flowName}`, cause.message].join('\n')
   }
 
-  if (error instanceof VivHttpError) {
+  if (error instanceof RiverHttpError) {
     const body = truncate(stringifyBody(error.responseBody))
     return [
       `${error.method} ${error.url}`,
@@ -58,7 +58,7 @@ export function formatCliError(error: unknown): string {
       .join('\n')
   }
 
-  if (error instanceof VivError) {
+  if (error instanceof RiverError) {
     return `[${error.code}] ${error.message}`
   }
 

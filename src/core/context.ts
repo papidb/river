@@ -1,8 +1,8 @@
 import type { Reporter } from '../cli/output/reporter.js'
-import { VivConfigError } from './errors.js'
+import { RiverConfigError } from './errors.js'
 import type { Flow } from './flow.js'
 import type { HttpClient } from '../http/client.js'
-import type { RequestOptions, VivResponse } from '../http/types.js'
+import type { RequestOptions, RiverResponse } from '../http/types.js'
 import type { StateStore } from '../state/types.js'
 
 class FlowCache {
@@ -19,11 +19,11 @@ class FlowCache {
 
 export interface RiverContext {
   readonly http: {
-    get<T = unknown>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-    post<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-    put<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
-    delete<T = unknown>(url: string, options?: RequestOptions): Promise<VivResponse<T>>
-    patch<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<VivResponse<T>>
+    get<T = unknown>(url: string, options?: RequestOptions): Promise<RiverResponse<T>>
+    post<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
+    put<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
+    delete<T = unknown>(url: string, options?: RequestOptions): Promise<RiverResponse<T>>
+    patch<T = unknown>(url: string, body?: unknown, options?: RequestOptions): Promise<RiverResponse<T>>
   }
   readonly headers: {
     set(key: string, value: string): void
@@ -45,7 +45,7 @@ export interface RiverContext {
   readonly flowName: string
 }
 
-interface VivContextOptions {
+interface RiverContextOptions {
   environment: string
   flowNameRef: { name: string }
   httpClient: HttpClient
@@ -63,7 +63,7 @@ function withTimeout(task: Promise<void>, timeoutMs: number, flowName: string): 
 
   return new Promise<void>((resolve, reject) => {
     const id = setTimeout(() => {
-      reject(new VivConfigError(`Flow "${flowName}" timed out after ${timeoutMs}ms`))
+      reject(new RiverConfigError(`Flow "${flowName}" timed out after ${timeoutMs}ms`))
     }, timeoutMs)
 
     task
@@ -75,7 +75,7 @@ function withTimeout(task: Promise<void>, timeoutMs: number, flowName: string): 
   })
 }
 
-export class VivContextImpl implements RiverContext {
+export class RiverContextImpl implements RiverContext {
   readonly #environment: string
   readonly #flowNameRef: { name: string }
   readonly #httpClient: HttpClient
@@ -91,7 +91,7 @@ export class VivContextImpl implements RiverContext {
   readonly state
   readonly store
 
-  constructor(options: VivContextOptions) {
+  constructor(options: RiverContextOptions) {
     this.#environment = options.environment
     this.#flowNameRef = options.flowNameRef
     this.#httpClient = options.httpClient
@@ -161,7 +161,7 @@ export class VivContextImpl implements RiverContext {
       return fallback
     }
 
-    throw new VivConfigError(`Environment variable "${key}" not found`)
+    throw new RiverConfigError(`Environment variable "${key}" not found`)
   }
 
   async run(flow: Flow): Promise<void> {

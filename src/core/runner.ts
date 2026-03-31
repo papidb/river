@@ -4,10 +4,10 @@ import { loadConfig } from '../config/loader.js'
 import { loadEnvFiles } from '../config/env-loader.js'
 import { HttpClient } from '../http/client.js'
 import { MemoryStore } from '../state/memory-store.js'
-import { VivConfigError, VivFlowError } from './errors.js'
+import { RiverConfigError, RiverFlowError } from './errors.js'
 import { isDeclarativeFlow, type Flow } from './flow.js'
 import { loadFlowByName } from './loader.js'
-import { VivContextImpl } from './context.js'
+import { RiverContextImpl } from './context.js'
 
 export interface RunOptions {
   env?: string
@@ -26,7 +26,7 @@ export class FlowRunner {
     const targetEnv = options.env ?? config.defaultEnv ?? availableEnvironments[0]
 
     if (!targetEnv || !config.environments[targetEnv]) {
-      throw new VivConfigError(`Environment "${targetEnv}" not found in river.config.ts`)
+      throw new RiverConfigError(`Environment "${targetEnv}" not found in river.config.ts`)
     }
 
     const envConfig = config.environments[targetEnv]
@@ -37,7 +37,7 @@ export class FlowRunner {
 
     const loaded = await loadFlowByName(projectRoot, config.flowsDir ?? './flows', flowName)
     if (isDeclarativeFlow(loaded)) {
-      throw new VivConfigError(`Declarative flow "${loaded.name}" is not supported in Phase 1`)
+      throw new RiverConfigError(`Declarative flow "${loaded.name}" is not supported in Phase 1`)
     }
 
     const flow = loaded as Flow
@@ -62,7 +62,7 @@ export class FlowRunner {
       },
     })
 
-    const context = new VivContextImpl({
+    const context = new RiverContextImpl({
       environment: targetEnv,
       flowNameRef,
       httpClient: client,
@@ -81,9 +81,9 @@ export class FlowRunner {
     } catch (error: unknown) {
       reporter.onFlowEnd(flow.name, false, Math.max(1, Date.now() - startedAt))
       if (error instanceof Error) {
-        throw new VivFlowError(flow.name, error)
+        throw new RiverFlowError(flow.name, error)
       }
-      throw new VivFlowError(flow.name, new Error(String(error)))
+      throw new RiverFlowError(flow.name, new Error(String(error)))
     } finally {
       reporter.summary()
     }

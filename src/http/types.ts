@@ -1,4 +1,4 @@
-export interface VivResponse<T = unknown> {
+export interface RiverResponse<T = unknown> {
   status: number
   statusText: string
   headers: Record<string, string>
