@@ -113,30 +113,45 @@ Status: 200
 1 step completed in 2527ms · all passed
 ```
 
-## Package and CLI names
+## Install
+
+### Global install
+
+This should be the normal way to use River:
+
+```bash
+pnpm install -g @papidb/river
+```
+
+Then use the CLI directly:
+
+```bash
+river --help
+river init my-api-flows
+cd my-api-flows
+pnpm install
+river run health-check
+```
+
+### Package and CLI names
 
 - **npm package**: `@papidb/river`
 - **import path**: `@papidb/river`
 - **CLI command**: `river`
 
-Examples:
+If you do not want a global install, you can still run it with `npx`:
 
 ```bash
-npm install @papidb/river
 npx @papidb/river init my-api-flows
 ```
+
+And inside TypeScript projects you import it like this:
 
 ```ts
 import { flow, defineConfig } from '@papidb/river'
 ```
 
-After install, the command remains:
-
-```bash
-river run health-check
-```
-
-## Running river locally
+## Developing River locally
 
 From this repository:
 
@@ -146,17 +161,23 @@ pnpm typecheck
 pnpm dev -- --help
 ```
 
-Run a flow from a project directory:
+For normal usage after install, prefer the real CLI:
 
 ```bash
-npx tsx /absolute/path/to/river/bin/river.ts run health-check
+river run health-check
+```
+
+When working inside this repository before a global install, use the dev script:
+
+```bash
+pnpm dev -- run health-check
 ```
 
 Or from this repository's example:
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/river/bin/river.ts run full-chain
+river run full-chain
 ```
 
 ## Getting started with `river init`
@@ -276,21 +297,21 @@ examples/jsonplaceholder/
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/river/bin/river.ts run full-chain
+river run full-chain
 ```
 
 ### Run the failure example
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/river/bin/river.ts run full-chain-failure
+river run full-chain-failure
 ```
 
 ### Run the mid-flow failure example
 
 ```bash
 cd examples/jsonplaceholder
-npx tsx /absolute/path/to/river/bin/river.ts run full-chain-mid-failure
+river run full-chain-mid-failure
 ```
 
 Expected shape of the mid-flow failure output:
