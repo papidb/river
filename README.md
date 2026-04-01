@@ -4,26 +4,6 @@ TypeScript-first API workflow orchestration for developers.
 
 `river` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
 
-## Status
-
-`river` is currently an **early preview**.
-
-What works today:
-- `river init [name]`
-- `river run <flow>`
-- TypeScript flow files
-- namespaced runtime context: `river.http.*`, `river.headers.*`, `river.state.*`, `river.store.*`
-- flow composition with `river.run(otherFlow)`
-- in-run state sharing
-- flow caching with `cache: true`
-- public example flows under `examples/jsonplaceholder/`
-
-What is still in progress:
-- `river list`
-- persistent disk-backed store
-- verbose / JSON output modes
-- declarative flow execution
-
 ## Why river?
 
 Most tools force you into one of two modes:
@@ -399,47 +379,24 @@ Planned next:
 - `--verbose`
 - `--json`
 
-## Development
+## Status
 
-Useful commands in this repo:
+`river` is currently an **early preview**.
 
-```bash
-pnpm install
-pnpm typecheck
-pnpm build
-pnpm test
-pnpm dev -- --help
-```
+What works today:
 
-## Design notes
+- `river init [name]`
+- `river run <flow>`
+- TypeScript flow files
+- namespaced runtime context: `river.http.*`, `river.headers.*`, `river.state.*`, `river.store.*`
+- flow composition with `river.run(otherFlow)`
+- in-run state sharing
+- flow caching with `cache: true`
+- public example flows under `examples/jsonplaceholder/`
 
-- TypeScript is the primary authoring format
-- flows compose through normal imports
-- state is namespaced at the API level, not hidden behind globals
-- examples use public APIs so the project can stay open-source friendly
+What is still in progress:
 
-## Roadmap
-
-Short-term:
-
-1. polish docs and output further
-2. add `river list`
-3. add persistent JSON-backed store
-4. add `river init`
-5. add verbose and machine-readable output
-
-Longer-term:
-
-1. declarative flow support
-2. runtime validation hooks
-3. better packaging and publish flow
-
-## Publishing
-
-Because the unscoped name was rejected by npm, the package is published as a scoped public package:
-
-```bash
-npm publish --access=public
-```
-
-That publishes `river`, with the executable command name `river`.
+- `river list`
+- persistent disk-backed store
+- verbose / JSON output modes
+- declarative flow execution
