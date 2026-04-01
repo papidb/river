@@ -8,21 +8,37 @@ interface CreatedPost {
   userId: number
 }
 
-export default flow('create-post', async (river) => {
-  await river.run(getUsers)
+interface CreatePostInput {
+  userId?: number
+  userName?: string
+  title?: string
+  body?: string
+}
 
-  const firstUser = river.state.get<{ id: number; name: string }>('users.first')
-  if (!firstUser) {
+export default flow<CreatePostInput, CreatedPost | undefined>('create-post', async (river, input) => {
+  const usersResult = input.userId
+    ? undefined
+    : await river.run(getUsers, {})
+
+  const resolvedUserId = input.userId ?? usersResult?.firstUser?.id
+  const resolvedUserName = input.userName ?? usersResult?.firstUser?.name
+
+  if (!resolvedUserId) {
     river.log('No users found — skipping')
     return
   }
 
   const res = await river.http.post<CreatedPost>('/posts', {
-    title: 'Hello from river',
-    body: 'This post was created by a river flow',
-    userId: firstUser.id,
+    title: input.title ?? 'Hello from river',
+    body: input.body ?? 'This post was created by a river flow',
+    userId: resolvedUserId,
   })
 
   river.state.set('post.created', res.data)
+  if (resolvedUserName) {
+    river.log(`Created post for ${resolvedUserName}`)
+  }
   river.log(`Created post #${res.data.id}: "${res.data.title}"`)
+
+  return res.data
 })

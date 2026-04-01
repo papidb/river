@@ -14,7 +14,7 @@ async function importTsModule(filePath: string): Promise<unknown> {
   return createJiti(import.meta.url).import(filePath)
 }
 
-export async function loadFlowFile(filePath: string): Promise<Flow | DeclarativeFlow> {
+export async function loadFlowFile(filePath: string): Promise<Flow<object, unknown> | DeclarativeFlow> {
   const mod = (await importTsModule(filePath)) as { default?: unknown }
   const exported = mod.default ?? mod
 
@@ -29,7 +29,7 @@ export async function loadFlowFile(filePath: string): Promise<Flow | Declarative
   throw new RiverConfigError(`Flow file ${filePath} must export a Flow or DeclarativeFlow as default`)
 }
 
-export async function loadFlowByName(projectRoot: string, flowsDir: string, flowName: string): Promise<Flow | DeclarativeFlow> {
+export async function loadFlowByName(projectRoot: string, flowsDir: string, flowName: string): Promise<Flow<object, unknown> | DeclarativeFlow> {
   const flowPath = join(projectRoot, flowsDir, `${flowName}.ts`)
   return loadFlowFile(flowPath)
 }

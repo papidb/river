@@ -1,20 +1,45 @@
 import type { Reporter } from '../cli/output/reporter.js'
 import { RiverConfigError } from './errors.js'
-import type { Flow } from './flow.js'
+import type { EmptyInput, Flow } from './flow.js'
 import type { HttpClient } from '../http/client.js'
 import type { RequestOptions, RiverResponse } from '../http/types.js'
 import type { StateStore } from '../state/types.js'
 
 class FlowCache {
-  readonly #ran = new Map<string, boolean>()
+  readonly #results = new Map<string, unknown>()
 
-  shouldSkip(flow: Flow): boolean {
-    return flow.options.cache === true && this.#ran.has(flow.name)
+  has(key: string): boolean {
+    return this.#results.has(key)
   }
 
-  mark(flow: Flow): void {
-    this.#ran.set(flow.name, true)
+  get<Output>(key: string): Output | undefined {
+    return this.#results.get(key) as Output | undefined
   }
+
+  set(key: string, value: unknown): void {
+    this.#results.set(key, value)
+  }
+}
+
+function stableSerialize(value: unknown): string {
+  if (value === undefined) {
+    return '__undefined__'
+  }
+
+  if (value === null || typeof value !== 'object') {
+    return JSON.stringify(value)
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableSerialize(item)).join(',')}]`
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>).sort(([left], [right]) => left.localeCompare(right))
+  return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${stableSerialize(entryValue)}`).join(',')}}`
+}
+
+function getCacheKey(flowName: string, input: unknown): string {
+  return `${flowName}::${stableSerialize(input)}`
 }
 
 export interface RiverContext {
@@ -40,6 +65,7 @@ export interface RiverContext {
   env(key: string): string
   env(key: string, fallback: string): string
   run(flow: Flow): Promise<void>
+  run<Input extends object, Output>(flow: Flow<Input, Output>, input: Input): Promise<Output>
   log(message: string): void
   readonly environment: string
   readonly flowName: string
@@ -56,18 +82,18 @@ interface RiverContextOptions {
   reporter: Reporter
 }
 
-function withTimeout(task: Promise<void>, timeoutMs: number, flowName: string): Promise<void> {
+function withTimeout<T>(task: Promise<T>, timeoutMs: number, flowName: string): Promise<T> {
   if (timeoutMs <= 0) {
     return task
   }
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     const id = setTimeout(() => {
       reject(new RiverConfigError(`Flow "${flowName}" timed out after ${timeoutMs}ms`))
     }, timeoutMs)
 
     task
-      .then(() => resolve())
+      .then((value) => resolve(value))
       .catch((error: unknown) => reject(error))
       .finally(() => {
         clearTimeout(id)
@@ -164,18 +190,26 @@ export class RiverContextImpl implements RiverContext {
     throw new RiverConfigError(`Environment variable "${key}" not found`)
   }
 
-  async run(flow: Flow): Promise<void> {
-    if (this.#flowCache.shouldSkip(flow)) {
+  async run(flow: Flow): Promise<void>
+  async run<Input extends object, Output>(flow: Flow<Input, Output>, input: Input): Promise<Output>
+  async run<Input extends object, Output>(flow: Flow<Input, Output>, input?: Input): Promise<Output | void> {
+    const normalizedInput = (input ?? ({} as EmptyInput)) as Input
+    const cacheKey = getCacheKey(flow.name, normalizedInput)
+
+    if (flow.options.cache === true && this.#flowCache.has(cacheKey)) {
       this.#reporter.onLog(`↷ ${flow.name} (cached)`)
-      return
+      return this.#flowCache.get<Output>(cacheKey)
     }
 
     const previousFlowName = this.#flowNameRef.name
     this.#flowNameRef.name = flow.name
 
     try {
-      await withTimeout(flow.execute(this), flow.options.timeout, flow.name)
-      this.#flowCache.mark(flow)
+      const output = await withTimeout(Promise.resolve(flow.execute(this, normalizedInput)), flow.options.timeout, flow.name)
+      if (flow.options.cache === true) {
+        this.#flowCache.set(cacheKey, output)
+      }
+      return output
     } finally {
       this.#flowNameRef.name = previousFlowName
     }

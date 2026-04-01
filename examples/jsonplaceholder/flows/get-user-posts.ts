@@ -8,23 +8,42 @@ interface Post {
   body: string
 }
 
-export default flow('get-user-posts', async (river) => {
-  // Run get-users first to have user data available
-  await river.run(getUsers)
+interface GetUserPostsInput {
+  userId?: number
+  userName?: string
+}
 
-  const firstUser = river.state.get<{ id: number; name: string }>('users.first')
-  if (!firstUser) {
+interface GetUserPostsOutput {
+  posts: Post[]
+  firstPost?: Post
+}
+
+export default flow<GetUserPostsInput, GetUserPostsOutput>('get-user-posts', async (river, input) => {
+  const usersResult = input.userId
+    ? undefined
+    : await river.run(getUsers, {})
+
+  const resolvedUserId = input.userId ?? usersResult?.firstUser?.id
+  const resolvedUserName = input.userName ?? usersResult?.firstUser?.name
+
+  if (!resolvedUserId) {
     river.log('No users found — skipping')
-    return
+    return { posts: [] }
   }
 
-  const res = await river.http.get<Post[]>(`/posts?userId=${firstUser.id}`)
+  const res = await river.http.get<Post[]>(`/posts?userId=${resolvedUserId}`)
+  const firstPost = res.data[0]
 
   river.state.set('posts.list', res.data)
-  river.state.set('posts.first', res.data[0])
+  river.state.set('posts.first', firstPost)
 
-  river.log(`User "${firstUser.name}" has ${res.data.length} posts`)
-  if (res.data.length > 0) {
-    river.log(`First post: "${res.data[0].title}"`)
+  river.log(`User "${resolvedUserName ?? String(resolvedUserId)}" has ${res.data.length} posts`)
+  if (firstPost) {
+    river.log(`First post: "${firstPost.title}"`)
+  }
+
+  return {
+    posts: res.data,
+    firstPost,
   }
 })

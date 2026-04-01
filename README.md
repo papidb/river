@@ -43,6 +43,13 @@ Most tools force you into one of two modes:
 
 Each flow is an async function.
 
+River supports **both** of these styles:
+
+1. **no-input flows**
+2. **function-like flows with explicit input/output**
+
+Shared runtime context remains available in both.
+
 ```ts
 import { flow } from '@papidb/river'
 
@@ -56,6 +63,45 @@ export default flow('login', async (river) => {
   river.state.set('login.token', res.data.token)
 })
 ```
+
+And now River also supports flows that behave more like normal functions:
+
+```ts
+import { flow } from '@papidb/river'
+
+type GetUserInput = { id: number }
+type GetUserOutput = { user: { id: number; name: string } }
+
+export default flow<GetUserInput, GetUserOutput>('get-user', async (river, input) => {
+  const res = await river.http.get<GetUserOutput['user']>(`/users/${input.id}`)
+
+  river.state.set('last.user', res.data)
+
+  return { user: res.data }
+})
+```
+
+Composition can then use explicit return values:
+
+```ts
+const result = await river.run(getUser, { id: 1 })
+console.log(result.user.name)
+```
+
+## How to think about data flow
+
+Use each mechanism for a different job:
+
+- **flow input/output** → the explicit contract of a flow
+- **`river.state`** → ephemeral shared state during one run
+- **`river.store`** → persistent shared state across runs
+- **`river.env`** → secrets and runtime configuration
+- **`river.http` / `river.headers` / `river.log`** → runtime capabilities
+
+Rule of thumb:
+
+> Use args/returns for what a flow **means**.
+> Use `river.*` for what a flow **needs from the runtime**.
 
 The runtime context is namespaced for clarity:
 

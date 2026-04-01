@@ -8,6 +8,10 @@ export function packageTemplate(projectName: string, dependencySpec: string): st
   },
   "dependencies": {
     "@papidb/river": "${dependencySpec}"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
   }
 }
 `
