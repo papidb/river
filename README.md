@@ -2,7 +2,7 @@
 
 TypeScript-first API workflow orchestration for developers.
 
-`river` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
+`river` sits between a test runner and an API client. Instead of writing one-off scripts or manually clicking through requests on postman, you define reusable flows in TypeScript, compose them, pass data between them, and run them from the CLI.
 
 ## Why river?
 
