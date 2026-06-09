@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import type { Reporter } from '../cli/output/reporter.js'
 import { RiverConfigError } from './errors.js'
 import type { EmptyInput, Flow } from './flow.js'
@@ -62,6 +63,7 @@ export interface RiverContext {
     save(key: string, value: unknown): void
     load<T = unknown>(key: string): T | undefined
   }
+  readonly assert: typeof assert
   env(key: string): string
   env(key: string, fallback: string): string
   run(flow: Flow): Promise<void>
@@ -116,6 +118,7 @@ export class RiverContextImpl implements RiverContext {
   readonly headers
   readonly state
   readonly store
+  readonly assert = assert
 
   constructor(options: RiverContextOptions) {
     this.#environment = options.environment

@@ -13,6 +13,7 @@ export interface RunOptions {
   env?: string
   cwd?: string
   reporter?: Reporter
+  flowArgs?: Record<string, string>
 }
 
 export class FlowRunner {
@@ -40,7 +41,7 @@ export class FlowRunner {
       throw new RiverConfigError(`Declarative flow "${loaded.name}" is not supported in Phase 1`)
     }
 
-    const flow = loaded as Flow
+    const flow = loaded
     const stateStore = new MemoryStore()
     const persistentStore = new MemoryStore()
     const flowNameRef = { name: flow.name }
@@ -75,8 +76,15 @@ export class FlowRunner {
 
     const startedAt = Date.now()
 
+    const flowArgs = options.flowArgs
+    const hasArgs = flowArgs !== undefined && Object.keys(flowArgs).length > 0
+
     try {
-      await context.run(flow)
+      if (hasArgs) {
+        await context.run(flow, flowArgs)
+      } else {
+        await context.run(flow, {})
+      }
       reporter.onFlowEnd(flow.name, true, Math.max(1, Date.now() - startedAt))
     } catch (error: unknown) {
       reporter.onFlowEnd(flow.name, false, Math.max(1, Date.now() - startedAt))
