@@ -89,9 +89,50 @@ The runtime context is namespaced for clarity:
 - `river.headers.set/remove`
 - `river.state.set/get` for in-run state
 - `river.store.save/load` for persistent state API surface
+- `river.assert.ok/equal/deepEqual/...` for assertions (`node:assert/strict`)
 - `river.env()`
 - `river.run(otherFlow)`
 - `river.log()`
+
+## CLI arguments as flow input
+
+Flows that accept typed input can receive values directly from the command line:
+
+```ts
+import { flow } from '@papidb/river'
+
+type Input = { id: string }
+
+export default flow<Input, void>('get-item', async (river, input) => {
+  const res = await river.http.get(`/items/${input.id}`)
+  river.assert.equal(res.status, 200)
+  river.log(`Item: ${res.data.name}`)
+})
+```
+
+```bash
+river run get-item --id=42
+```
+
+Extra `--key=value` flags on the CLI are parsed and passed as the flow's input object. Values are always strings — coerce in your flow if needed.
+
+## Smoke testing
+
+Flows double as smoke tests. `river.assert` exposes `node:assert/strict` so you can verify API responses inline:
+
+```ts
+export default flow('smoke-users', async (river) => {
+  const res = await river.http.get<User[]>('/users')
+
+  river.assert.equal(res.status, 200)
+  river.assert.ok(res.data.length > 0, 'expected at least one user')
+  river.assert.ok(res.data[0].email.includes('@'), 'invalid email')
+
+  river.log(`${res.data.length} users — all checks passed`)
+})
+```
+
+A failing assertion throws and stops the flow with a clear error, just like a failed HTTP request.
 
 ## Example
 
@@ -280,7 +321,9 @@ examples/jsonplaceholder/
     ├── create-post.ts
     ├── full-chain.ts
     ├── full-chain-failure.ts
-    └── full-chain-mid-failure.ts
+    ├── full-chain-mid-failure.ts
+    ├── smoke-health.ts
+    └── smoke-user.ts
 ```
 
 ### What they demonstrate
@@ -292,6 +335,8 @@ examples/jsonplaceholder/
 - `full-chain.ts` — pipeline-style orchestration across multiple flows
 - `full-chain-failure.ts` — realistic failure pipeline that succeeds through setup steps and then dies on a bad endpoint
 - `full-chain-mid-failure.ts` — succeeds on the first step, fails in the middle, and proves later work does not run
+- `smoke-health.ts` — smoke test with `river.assert` — validates API response shape
+- `smoke-user.ts` — smoke test with CLI args (`--id=1`) and assertions on a single resource
 
 ### Run the full example
 
@@ -331,6 +376,14 @@ Response:
 ```
 
 The important part: anything after the failing request does not run.
+
+### Run the smoke tests
+
+```bash
+cd examples/jsonplaceholder
+river run smoke-health
+river run smoke-user --id=1
+```
 
 Expected shape of the failure output:
 
@@ -409,7 +462,8 @@ What works today:
 - `river init [name]`
 - `river run <flow>`
 - TypeScript flow files
-- namespaced runtime context: `river.http.*`, `river.headers.*`, `river.state.*`, `river.store.*`
+- namespaced runtime context: `river.http.*`, `river.headers.*`, `river.state.*`, `river.store.*`, `river.assert.*`
+- CLI arguments as flow input (`--key=value`)
 - flow composition with `river.run(otherFlow)`
 - in-run state sharing
 - flow caching with `cache: true`
